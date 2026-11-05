@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyCast · Repaso con Podcast</title>
+<style>
+  :root {
+    --azul: #1f4e79;
+    --violeta: #6a4c93;
+    --gris: #f4f6f8;
+    --borde: #cfd8dc;
+    --verde: #2e7d32;
+    --rojo: #b71c1c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 14px;
+    font-family: system-ui, -apple-system, Arial, sans-serif;
+    background: linear-gradient(135deg,#eaf2f8,#f7f9fb);
+    color: #222; line-height: 1.5;
+  }
+  .container {
+    max-width: 820px; margin: 0 auto;
+    background: #fff; border-radius: 16px;
+    padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 {
+    margin: 0; font-size: 26px;
+    background: linear-gradient(90deg,var(--azul),var(--violeta));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: #666; font-size: 14px; margin: 4px 0 0; }
+
+  .topic-grid {
+    display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+    gap: 10px; margin: 16px 0;
+  }
+  .topic-btn {
+    background: var(--gris); border: 2px solid transparent;
+    border-radius: 12px; padding: 14px 10px;
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    text-align: center; transition: all .2s;
+  }
+  .topic-btn:hover { border-color: var(--azul); }
+  .topic-btn.active {
+    background: var(--azul); color: #fff;
+    border-color: var(--azul);
+  }
+  .topic-btn .emoji { display: block; font-size: 22px; margin-bottom: 4px; }
+
+  .tabs {
+    display: flex; gap: 6px; margin: 18px 0 12px;
+    border-bottom: 2px solid var(--borde); flex-wrap: wrap;
+  }
+  .tab {
+    background: none; border: none; padding: 10px 14px;
+    cursor: pointer; font-size: 15px; font-weight: 600;
+    color: #666; border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+  }
+  .tab.active { color: var(--azul); border-bottom-color: var(--azul); }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fade .3s; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  .podcast-player {
+    background: linear-gradient(135deg,var(--violeta),var(--azul));
+    color: #fff; border-radius: 14px; padding: 20px;
+    margin-bottom: 14px;
+  }
+  .podcast-title { font-size: 16px; margin: 0 0 12px; opacity: .9; }
+  .podcast-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .podcast-controls button {
+    background: rgba(255,255,255,.2); color: #fff;
+    border: none; border-radius: 10px;
+    padding: 10px 16px; font-size: 15px; cursor: pointer;
+    font-weight: 600;
+  }
+  .podcast-controls button:hover { background: rgba(255,255,255,.35); }
+  .now-speaking {
+    margin-top: 12px; font-size: 14px; min-height: 22px;
+    opacity: .9;
+  }
+  .script-line {
+    background: #fff; border-left: 4px solid var(--violeta);
+    border-radius: 10px; padding: 10px 12px; margin: 8px 0;
+    font-size: 14px; cursor: pointer;
+  }
+  .script-line .who {
+    font-weight: bold; color: var(--violeta);
+    display: block; font-size: 12px; margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .script-line.playing { background: #f3ebff; }
+
+  .question {
+    background: var(--gris); border-radius: 12px;
+    padding: 16px; margin: 12px 0;
+  }
+  .question p { margin: 0 0 10px; font-weight: 600; }
+  .options label {
+    display: block; background: #fff;
+    border: 1.5px solid var(--borde);
+    border-radius: 10px; padding: 10px 12px;
+    margin: 6px 0; cursor: pointer; font-size: 15px;
+    transition: all .15s;
+  }
+  .options label:hover { border-color: var(--azul); }
+  .options input { margin-right: 8px; }
+  .options label.correct { background: #e8f5e9; border-color: var(--verde); }
+  .options label.wrong { background: #ffebee; border-color: var(--rojo); }
+  .score {
+    background: #fff3e0; border: 1.5px solid #ffb74d;
+    border-radius: 12px; padding: 14px; margin-top: 14px;
+    font-weight: bold; text-align: center;
+  }
+
+  .ask-ai {
+    text-align: center; padding: 30px 20px;
+    background: var(--gris); border-radius: 14px;
+  }
+  .ask-ai p { color: #666; margin: 0 0 14px; }
+  .ask-ai button {
+    background: var(--azul); color: #fff;
+    border: none; border-radius: 10px;
+    padding: 12px 20px; font-size: 15px;
+    cursor: not-allowed; opacity: .5;
+  }
+
+  button.primary {
+    background: var(--azul); color: #fff;
+    border: none; border-radius: 10px;
+    padding: 12px 20px; font-size: 15px;
+    cursor: pointer; font-weight: 600;
+  }
+  button.primary:hover { background: #163a5a; }
+
+  @media (max-width: 500px) {
+    h1 { font-size: 22px; }
+    .tab { padding: 8px 10px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🎓 StudyCast</h1>
+    <p class="subtitle">Repasa con podcast y preguntas</p>
+  </header>
+
+  <div class="topic-grid" id="topicGrid"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="podcast">🎙️ Podcast</button>
+    <button class="tab" data-tab="quiz">📝 Quiz</button>
+    <button class="tab" data-tab="ai">🤖 Preguntar a la IA</button>
+  </div>
+
+  <div class="panel active" id="panel-podcast">
+    <div class="podcast-player">
+      <p class="podcast-title" id="podcastTitle">Elige un tema arriba</p>
+      <div class="podcast-controls">
+        <button id="playBtn">▶ Reproducir</button>
+        <button id="pauseBtn">⏸ Pausar</button>
+        <button id="stopBtn">■ Detener</button>
+      </div>
+      <div class="now-speaking" id="nowSpeaking"></div>
+    </div>
+    <div id="scriptContainer"></div>
+  </div>
+
+  <div class="panel" id="panel-quiz">
+    <div id="quizContainer"></div>
+  </div>
+
+  <div class="panel" id="panel-ai">
+    <div class="ask-ai">
+      <h3>🤖 Preguntas con IA</h3>
+      <p>Esta función necesita conectar un backend.<br>
+         Lee el paso a paso en <strong>server.js</strong>.</p>
+      <button disabled>Preguntar a la IA (próximamente)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TOPICS = {
+    present_simple: {
+      name: "Present Simple",
+      emoji: "⏰",
+      podcast: [
+        { who: "Host",   text: "Welcome to StudyCast, the podcast to review English in minutes. Today we are talking about the present simple." },
+        { who: "Teacher", text: "Thanks, yes. The present simple is for routines, habits and facts." },
+        { who: "Host",   text: "Can you give us an example?" },
+        { who: "Teacher", text: "Sure. I go to school every day. She works in a hospital. Water boils at one hundred degrees." },
+        { who: "Host",   text: "When do we add S to the verb?" },
+        { who: "Teacher", text: "We add S or ES with he, she and it. For example, he plays. She watches. It rains." },
+        { who: "Host",   text: "And negative sentences?" },
+        { who: "Teacher", text: "We use do not or does not. I do not like coffee. He does not play football." },
+        { who: "Host",   text: "Perfect. Quick review: routines and facts, add S with he she it, and use do or does for negatives and questions." },
+        { who: "Teacher", text: "Exactly. Practise a little every day and it will become easy." }
+      ],
+      questions: [
+        { q: "My sister ___ to school by bus every day.", a: "goes", opts: ["go","goes","going"] },
+        { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] },
+        { q: "We ___ not watch TV in the morning.", a: "do", opts: ["do","does","are"] },
+        { q: "He ___ football on Sundays.", a: "plays", opts: ["play","plays","playing"] },
+        { q: "Water ___ at 100 degrees.", a: "boils", opts: ["boil","boils","boiling"] }
+      ]
+    },
+    past_simple: {
+      name: "Past Simple",
+      emoji: "📅",
+      podcast: [
+        { who: "Host",   text: "Today on StudyCast we review the past simple." },
+        { who: "Teacher", text: "The past simple is for actions that finished in the past." },
+        { who: "Host",   text: "Regular and irregular verbs, right?" },
+        { who: "Teacher", text: "Yes. Regular verbs add ED. For example, play becomes played. Watch becomes watched." },
+        { who: "Host",   text: "And irregular verbs?" },
+        { who: "Teacher", text: "They change. Go becomes went. Eat becomes ate. See becomes saw." },
+        { who: "Host",   text: "What about negatives and questions?" },
+        { who: "Teacher", text: "We use did not, or didn't, for negatives. And did for questions. For example, did you go?" },
+        { who: "Host",   text: "Remember: time expressions like yesterday, last week and two days ago." },
+        { who: "Teacher", text: "Great. Practise with a short story every day." }
+      ],
+      questions: [
+        { q: "I ___ to the park yesterday.", a: "went", opts: ["go","went","going"] },
+        { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] },
+        { q: "___ you see the film?", a: "Did", opts: ["Do","Did","Does"] },
+        { q: "We ___ not eat at home.", a: "did", opts: ["do","did","does"] },
+        { q: "They ___ pizza two days ago.", a: "ate", opts: ["eat","ate","eating"] }
+      ]
+    },
+    vocabulary: {
+      name: "Vocabulary",
+      emoji: "📚",
+      podcast: [
+        { who: "Host",   text: "Welcome back. Today we review useful everyday vocabulary." },
+        { who: "Teacher", text: "Let's start with places in a city: bank, supermarket, pharmacy, library and station." },
+        { who: "Host",   text: "What about food?" },
+        { who: "Teacher", text: "Bread, cheese, milk, fruit, vegetables and meat." },
+        { who: "Host",   text: "And clothes?" },
+        { who: "Teacher", text: "Shirt, trousers, shoes, jacket and hat." },
+        { who: "Host",   text: "How can students remember them?" },
+        { who: "Teacher", text: "Make small groups by theme, and use each word in a sentence." },
+        { who: "Host",   text: "Great tip. Learn five words a day, and review them every week." },
+        { who: "Teacher", text: "Exactly. Little by little, you will know hundreds of words." }
+      ],
+      questions: [
+        { q: "You buy medicine at the ___.", a: "pharmacy", opts: ["bank","pharmacy","library"] },
+        { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] },
+        { q: "You wear ___ on your feet.", a: "shoes", opts: ["shoes","hat","gloves"] },
+        { q: "A place to borrow books is a ___.", a: "library", opts: ["library","bank","supermarket"] },
+        { q: "The opposite of 'expensive' is ___.", a: "cheap", opts: ["rich","cheap","big"] }
+      ]
+    }
+  };
+
+  let currentTopicKey = null;
+  let currentUtterances = [];
+
+  const topicGrid = document.getElementById('topicGrid');
+  Object.keys(TOPICS).forEach(function(key){
+    const t = TOPICS[key];
+    const btn = document.createElement('button');
+    btn.className = 'topic-btn';
+    btn.dataset.key = key;
+    btn.innerHTML = '<span class="emoji">' + t.emoji + '</span>' + t.name;
+    btn.addEventListener('click', function(){ selectTopic(key); });
+    topicGrid.appendChild(btn);
+  });
+
+  function selectTopic(key) {
+    currentTopicKey = key;
+    stopPodcast();
+    document.querySelectorAll('.topic-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.key === key);
+    });
+    const t = TOPICS[key];
+    document.getElementById('podcastTitle').textContent = '🎧 ' + t.name + ' – Podcast';
+    renderScript(t.podcast);
+    renderQuiz(t.questions);
+  }
+
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  const scriptContainer = document.getElementById('scriptContainer');
+  const nowSpeaking = document.getElementById('nowSpeaking');
+
+  function renderScript(lines) {
+    scriptContainer.innerHTML = '';
+    lines.forEach(function(line, i){
+      const div = document.createElement('div');
+      div.className = 'script-line';
+      div.dataset.index = i;
+      div.innerHTML = '<span class="who">' + line.who + '</span>' + line.text;
+      div.addEventListener('click', function(){ playFrom(i); });
+      scriptContainer.appendChild(div);
+    });
+  }
+
+  function playFrom(startIndex) {
+    if (!('speechSynthesis' in window)) {
+      alert('Tu navegador no permite reproducir audio.');
+      return;
+    }
+    stopPodcast();
+    if (!currentTopicKey) return;
+    const lines = TOPICS[currentTopicKey].podcast;
+    currentUtterances = [];
+    for (let i = startIndex; i < lines.length; i++) {
+      const line = lines[i];
+      const u = new SpeechSynthesisUtterance(line.text);
+      u.lang = 'en-GB';
+      if (line.who === 'Host') { u.pitch = 1.1; u.rate = 0.95; }
+      else { u.pitch = 0.85; u.rate = 0.9; }
+      u.onstart = function(){
+        highlightLine(i);
+        nowSpeaking.textContent = '▶ ' + line.who + ': ' + line.text.slice(0, 60) + '…';
+      };
+      u.onend = function(){
+        if (i === lines.length - 1) {
+          nowSpeaking.textContent = '✅ Podcast terminado';
+          highlightLine(-1);
+        }
+      };
+      currentUtterances.push(u);
+    }
+    currentUtterances.forEach(function(u){ speechSynthesis.speak(u); });
+  }
+
+  function highlightLine(idx) {
+    document.querySelectorAll('.script-line').forEach(function(el){
+      el.classList.toggle('playing', Number(el.dataset.index) === idx);
+    });
+  }
+
+  function stopPodcast() {
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    highlightLine(-1);
+    nowSpeaking.textContent = '';
+  }
+
+  document.getElementById('playBtn').addEventListener('click', function(){
+    if (!currentTopicKey) { alert('Elige un tema primero'); return; }
+    playFrom(0);
+  });
+  document.getElementById('pauseBtn').addEventListener('click', function(){
+    if ('speechSynthesis' in window) speechSynthesis.pause();
+  });
+  document.getElementById('stopBtn').addEventListener('click', stopPodcast);
+
+  const quizContainer = document.getElementById('quizContainer');
+
+  function renderQuiz(questions) {
+    quizContainer.innerHTML = '';
+    questions.forEach(function(item, qIndex){
+      const box = document.createElement('div');
+      box.className = 'question';
+      const p = document.createElement('p');
+      p.textContent = (qIndex + 1) + '. ' + item.q;
+      box.appendChild(p);
+      const opts = document.createElement('div');
+      opts.className = 'options';
+      item.opts.forEach(function(opt){
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'q' + qIndex;
+        input.value = opt;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(opt));
+        opts.appendChild(label);
+      });
+      box.appendChild(opts);
+      quizContainer.appendChild(box);
+    });
+
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'primary';
+    checkBtn.textContent = 'Corregir respuestas';
+    checkBtn.addEventListener('click', function(){
+      let score = 0;
+      questions.forEach(function(item, qIndex){
+        const labels = quizContainer.querySelectorAll('.question')[qIndex].querySelectorAll('label');
+        labels.forEach(function(label){
+          const input = label.querySelector('input');
+          if (input.checked && input.value === item.a) {
+            label.classList.add('correct');
+            score++;
+          } else if (input.checked) {
+            label.classList.add('wrong');
+          }
+          if (input.value === item.a) label.classList.add('correct');
+          input.disabled = true;
+        });
+      });
+      const oldScore = quizContainer.querySelector('.score');
+      if (oldScore) oldScore.remove();
+      const scoreEl = document.createElement('div');
+      scoreEl.className = 'score';
+      scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
+      quizContainer.appendChild(scoreEl);
+    });
+    quizContainer.appendChild(checkBtn);
+  }
+
+  selectTopic('present_simple');
+</script>
+</body>
+</html>
