@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyCast · Repaso con Podcast e IA</title>
+<title>StudyCast · Repaso para tu Examen</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 <style>
   :root {
@@ -125,7 +125,7 @@
     background: var(--gris); border-radius: 14px;
     margin-bottom: 12px;
   }
-  .ask-ai p { color: #666; margin: 0 0 12px; }
+  .ask-ai p { color: #666; margin: 0 0 12px; font-size: 14px; }
   .ask-ai input[type="text"] {
     padding: 10px 12px; border: 1.5px solid var(--borde);
     border-radius: 10px; font-size: 15px; width: 100%;
@@ -158,7 +158,7 @@
 <div class="container">
   <header>
     <h1>🎓 StudyCast</h1>
-    <p class="subtitle">Repasa con podcast, quizzes e IA</p>
+    <p class="subtitle">Tu centro de repaso para el examen</p>
   </header>
 
   <div class="topic-grid" id="topicGrid"></div>
@@ -166,7 +166,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="podcast">🎙️ Podcast</button>
     <button class="tab" data-tab="quiz">📝 Quiz</button>
-    <button class="tab" data-tab="ai">🤖 IA</button>
+    <button class="tab" data-tab="ai">🤖 Tutor IA</button>
   </div>
 
   <!-- Podcast -->
@@ -191,21 +191,21 @@
   <!-- IA -->
   <div class="panel" id="panel-ai">
     <div class="ask-ai">
-      <h3>🤖 Genera preguntas con IA</h3>
-      <p>Escribe un tema y la IA creará 5 preguntas nuevas.</p>
-      <input type="text" id="aiTopic" placeholder="Ej: present perfect, phrasal verbs, travel vocabulary...">
+      <h3>🤖 Genera un simulacro de examen</h3>
+      <p>Escribe los temas que entran en tu examen. La IA creará 5 preguntas para que practiques.</p>
+      <input type="text" id="aiTopic" placeholder="Ej: Mi examen es de Past Simple, comparativos y vocabulario de viajes">
       <br>
-      <button class="primary" id="aiGenerateBtn">Generar 5 preguntas</button>
-      <div id="aiLoading" style="display:none;margin-top:12px;">⏳ Generando preguntas...</div>
+      <button class="primary" id="aiGenerateBtn">Generar preguntas de examen</button>
+      <div id="aiLoading" style="display:none;margin-top:12px;">⏳ Creando simulacro...</div>
     </div>
     <div id="aiQuizContainer"></div>
 
     <hr style="margin:24px 0;border:none;border-top:1px solid #ddd;">
 
     <div class="ask-ai">
-      <h3>💬 Pregunta al profe IA</h3>
-      <p>Ej: "Explícame el past simple con ejemplos"</p>
-      <input type="text" id="chatInput" placeholder="Escribe tu pregunta...">
+      <h3>💬 Pregúntale al Tutor IA</h3>
+      <p>Te explicará en español e inglés. Pídele que te haga preguntas orales o que te resuelva dudas.</p>
+      <input type="text" id="chatInput" placeholder="Ej: Explícame el past simple. O dime: Hazme un simulacro oral.">
       <br>
       <button class="primary" id="chatBtn">Enviar</button>
       <div id="chatReply"></div>
@@ -214,7 +214,6 @@
 </div>
 
 <script>
-  /* ========== DATOS ========== */
   const TOPICS = {
     present_simple: {
       name: "Present Simple", emoji: "⏰",
@@ -287,7 +286,6 @@
   let currentTopicKey = null;
   let currentUtterances = [];
 
-  /* ========== TEMAS ========== */
   const topicGrid = document.getElementById('topicGrid');
   Object.keys(TOPICS).forEach(function(key){
     const t = TOPICS[key];
@@ -311,7 +309,6 @@
     renderQuiz(t.questions, document.getElementById('quizContainer'));
   }
 
-  /* ========== TABS ========== */
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.addEventListener('click', function(){
       document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
@@ -321,7 +318,6 @@
     });
   });
 
-  /* ========== PODCAST ========== */
   const scriptContainer = document.getElementById('scriptContainer');
   const nowSpeaking = document.getElementById('nowSpeaking');
 
@@ -388,7 +384,6 @@
   });
   document.getElementById('stopBtn').addEventListener('click', stopPodcast);
 
-  /* ========== QUIZ ========== */
   function renderQuiz(questions, container) {
     container.innerHTML = '';
     const suffix = Math.random().toString(36).slice(2);
@@ -440,10 +435,10 @@
     container.appendChild(checkBtn);
   }
 
-  /* ========== IA: GENERAR PREGUNTAS ========== */
+  // --- Lógica de la IA ---
   document.getElementById('aiGenerateBtn').addEventListener('click', async function(){
     const topic = document.getElementById('aiTopic').value.trim();
-    if (!topic) { alert('Escribe un tema'); return; }
+    if (!topic) { alert('Escribe qué temas entran en tu examen'); return; }
 
     const loading = document.getElementById('aiLoading');
     const container = document.getElementById('aiQuizContainer');
@@ -470,7 +465,6 @@
     }
   });
 
-  /* ========== IA: CHAT ========== */
   document.getElementById('chatBtn').addEventListener('click', async function(){
     const msg = document.getElementById('chatInput').value.trim();
     if (!msg) return;
@@ -497,7 +491,6 @@
     }
   });
 
-  /* ========== INICIO ========== */
   selectTopic('present_simple');
 </script>
 </body>
