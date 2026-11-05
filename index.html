@@ -3,64 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyCast · Repaso para tu Examen</title>
+<title>StudyCast · Tu App de Estudio</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f4e79">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 <style>
   :root {
     --azul: #1f4e79;
     --violeta: #6a4c93;
-    --gris: #f4f6f8;
+    --fondo: #f7f9fb;
+    --tarjeta: #ffffff;
+    --texto: #222222;
     --borde: #cfd8dc;
+    --gris: #f4f6f8;
     --verde: #2e7d32;
     --rojo: #b71c1c;
   }
+  
+  /* MODO OSCURO */
+  body.dark {
+    --fondo: #121212;
+    --tarjeta: #1e1e1e;
+    --texto: #e0e0e0;
+    --borde: #333333;
+    --gris: #2d2d2d;
+    --azul: #4db8ff;
+  }
+
   * { box-sizing: border-box; }
   body {
     margin: 0; padding: 14px;
     font-family: system-ui, -apple-system, Arial, sans-serif;
-    background: linear-gradient(135deg,#eaf2f8,#f7f9fb);
-    color: #222; line-height: 1.5;
+    background: var(--fondo);
+    color: var(--texto); line-height: 1.5;
+    transition: background .3s, color .3s;
   }
   .container {
     max-width: 820px; margin: 0 auto;
-    background: #fff; border-radius: 16px;
+    background: var(--tarjeta); border-radius: 16px;
     padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.08);
   }
-  header { text-align: center; margin-bottom: 20px; }
-  h1 {
-    margin: 0; font-size: 26px;
-    background: linear-gradient(90deg,var(--azul),var(--violeta));
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .subtitle { color: #666; font-size: 14px; margin: 4px 0 0; }
+  header { text-align: center; margin-bottom: 20px; position: relative; }
+  h1 { margin: 0; font-size: 26px; color: var(--azul); }
+  .subtitle { color: #888; font-size: 14px; margin: 4px 0 0; }
 
-  .topic-grid {
-    display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
-    gap: 10px; margin: 16px 0;
+  .top-btns {
+    position: absolute; top: 0; right: 0;
+    display: flex; gap: 8px;
   }
+  .icon-btn {
+    background: var(--gris); border: none; border-radius: 50%;
+    width: 36px; height: 36px; cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .install-btn {
+    display: none; width: 100%; background: var(--verde); color: white;
+    border: none; padding: 12px; border-radius: 10px; margin-bottom: 15px;
+    font-size: 15px; font-weight: bold; cursor: pointer;
+  }
+
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 10px; margin: 16px 0; }
   .topic-btn {
-    background: var(--gris); border: 2px solid transparent;
-    border-radius: 12px; padding: 14px 10px;
-    cursor: pointer; font-size: 14px; font-weight: 600;
+    background: var(--gris); border: 2px solid transparent; color: var(--texto);
+    border-radius: 12px; padding: 14px 10px; cursor: pointer; font-size: 14px; font-weight: 600;
     text-align: center; transition: all .2s;
   }
-  .topic-btn:hover { border-color: var(--azul); }
-  .topic-btn.active {
-    background: var(--azul); color: #fff;
-    border-color: var(--azul);
-  }
+  .topic-btn.active { background: var(--azul); color: #fff; border-color: var(--azul); }
   .topic-btn .emoji { display: block; font-size: 22px; margin-bottom: 4px; }
 
-  .tabs {
-    display: flex; gap: 6px; margin: 18px 0 12px;
-    border-bottom: 2px solid var(--borde); flex-wrap: wrap;
-  }
+  .tabs { display: flex; gap: 6px; margin: 18px 0 12px; border-bottom: 2px solid var(--borde); flex-wrap: wrap; }
   .tab {
-    background: none; border: none; padding: 10px 14px;
-    cursor: pointer; font-size: 15px; font-weight: 600;
-    color: #666; border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
+    background: none; border: none; padding: 10px 14px; cursor: pointer; font-size: 15px; font-weight: 600;
+    color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px;
   }
   .tab.active { color: var(--azul); border-bottom-color: var(--azul); }
 
@@ -68,117 +83,69 @@
   .panel.active { display: block; animation: fade .3s; }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
-  .podcast-player {
-    background: linear-gradient(135deg,var(--violeta),var(--azul));
-    color: #fff; border-radius: 14px; padding: 20px;
-    margin-bottom: 14px;
-  }
-  .podcast-title { font-size: 16px; margin: 0 0 12px; opacity: .9; }
+  /* PODCAST */
+  .podcast-player { background: linear-gradient(135deg,var(--violeta),var(--azul)); color: #fff; border-radius: 14px; padding: 20px; margin-bottom: 14px; }
   .podcast-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-  .podcast-controls button {
-    background: rgba(255,255,255,.2); color: #fff;
-    border: none; border-radius: 10px;
-    padding: 10px 16px; font-size: 15px; cursor: pointer;
-    font-weight: 600;
-  }
-  .podcast-controls button:hover { background: rgba(255,255,255,.35); }
-  .now-speaking {
-    margin-top: 12px; font-size: 14px; min-height: 22px;
-    opacity: .9;
-  }
-  .script-line {
-    background: #fff; border-left: 4px solid var(--violeta);
-    border-radius: 10px; padding: 10px 12px; margin: 8px 0;
-    font-size: 14px; cursor: pointer;
-  }
-  .script-line .who {
-    font-weight: bold; color: var(--violeta);
-    display: block; font-size: 12px; margin-bottom: 4px;
-    text-transform: uppercase; letter-spacing: .5px;
-  }
-  .script-line.playing { background: #f3ebff; }
+  .podcast-controls button { background: rgba(255,255,255,.2); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 15px; cursor: pointer; font-weight: 600; }
+  .script-line { background: var(--tarjeta); border-left: 4px solid var(--violeta); border-radius: 10px; padding: 10px 12px; margin: 8px 0; font-size: 14px; cursor: pointer; }
+  .script-line.playing { background: rgba(106, 76, 147, 0.2); }
 
-  .question {
-    background: var(--gris); border-radius: 12px;
-    padding: 16px; margin: 12px 0;
-  }
-  .question p { margin: 0 0 10px; font-weight: 600; }
-  .options label {
-    display: block; background: #fff;
-    border: 1.5px solid var(--borde);
-    border-radius: 10px; padding: 10px 12px;
-    margin: 6px 0; cursor: pointer; font-size: 15px;
-    transition: all .15s;
-  }
-  .options label:hover { border-color: var(--azul); }
-  .options input { margin-right: 8px; }
-  .options label.correct { background: #e8f5e9; border-color: var(--verde); }
-  .options label.wrong { background: #ffebee; border-color: var(--rojo); }
-  .score {
-    background: #fff3e0; border: 1.5px solid #ffb74d;
-    border-radius: 12px; padding: 14px; margin-top: 14px;
-    font-weight: bold; text-align: center;
-  }
+  /* QUIZ */
+  .question { background: var(--gris); border-radius: 12px; padding: 16px; margin: 12px 0; }
+  .options label { display: block; background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 10px; padding: 10px 12px; margin: 6px 0; cursor: pointer; font-size: 15px; color: var(--texto); }
+  .options label.correct { background: #e8f5e9; border-color: var(--verde); color: #1b5e20; }
+  .options label.wrong { background: #ffebee; border-color: var(--rojo); color: #b71c1c; }
+  .score { background: #fff3e0; border: 1.5px solid #ffb74d; border-radius: 12px; padding: 14px; margin-top: 14px; font-weight: bold; text-align: center; color: #e65100; }
 
-  .ask-ai {
-    text-align: center; padding: 24px 16px;
-    background: var(--gris); border-radius: 14px;
-    margin-bottom: 12px;
+  /* FLASHCARDS */
+  .flashcard-container { perspective: 1000px; width: 100%; height: 200px; margin: 20px 0; cursor: pointer; }
+  .flashcard { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .flashcard-front, .flashcard-back {
+    position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+    display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 24px; font-weight: bold; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,.1);
   }
-  .ask-ai p { color: #666; margin: 0 0 12px; font-size: 14px; }
-  .ask-ai input[type="text"] {
-    padding: 10px 12px; border: 1.5px solid var(--borde);
-    border-radius: 10px; font-size: 15px; width: 100%;
-    max-width: 400px; margin-bottom: 10px; font-family: inherit;
-  }
+  .flashcard-front { background: var(--azul); color: #fff; }
+  .flashcard-back { background: var(--violeta); color: #fff; transform: rotateY(180deg); }
 
-  button.primary {
-    background: var(--azul); color: #fff;
-    border: none; border-radius: 10px;
-    padding: 12px 20px; font-size: 15px;
-    cursor: pointer; font-weight: 600;
-  }
-  button.primary:hover { background: #163a5a; }
+  /* IA */
+  .ask-ai { text-align: center; padding: 24px 16px; background: var(--gris); border-radius: 14px; margin-bottom: 12px; }
+  .ask-ai input[type="text"] { padding: 10px; border: 1.5px solid var(--borde); border-radius: 10px; width: 100%; max-width: 400px; margin-bottom: 10px; background: var(--tarjeta); color: var(--texto); }
+  button.primary { background: var(--azul); color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-size: 15px; cursor: pointer; font-weight: 600; }
   button.primary:disabled { background: #b0bec5; cursor: not-allowed; }
-
-  #chatReply {
-    margin-top: 12px; text-align: left;
-    background: #fff; padding: 12px;
-    border-radius: 10px; border: 1px solid var(--borde);
-    display: none; white-space: pre-wrap;
-  }
-
-  @media (max-width: 500px) {
-    h1 { font-size: 22px; }
-    .tab { padding: 8px 10px; font-size: 14px; }
-  }
+  #chatReply { margin-top: 12px; text-align: left; background: var(--tarjeta); padding: 12px; border-radius: 10px; border: 1px solid var(--borde); display: none; white-space: pre-wrap; }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
+    <div class="top-btns">
+      <button class="icon-btn" id="themeBtn" title="Modo Oscuro">🌙</button>
+    </div>
     <h1>🎓 StudyCast</h1>
-    <p class="subtitle">Tu centro de repaso para el examen</p>
+    <p class="subtitle">Tu App de Estudio para el Examen</p>
   </header>
+
+  <button id="installBtn" class="install-btn">📲 Instalar App en mi dispositivo</button>
 
   <div class="topic-grid" id="topicGrid"></div>
 
   <div class="tabs">
     <button class="tab active" data-tab="podcast">🎙️ Podcast</button>
     <button class="tab" data-tab="quiz">📝 Quiz</button>
+    <button class="tab" data-tab="flashcards">🃏 Flashcards</button>
     <button class="tab" data-tab="ai">🤖 Tutor IA</button>
   </div>
 
   <!-- Podcast -->
   <div class="panel active" id="panel-podcast">
     <div class="podcast-player">
-      <p class="podcast-title" id="podcastTitle">Elige un tema arriba</p>
+      <p id="podcastTitle">Elige un tema arriba</p>
       <div class="podcast-controls">
         <button id="playBtn">▶ Reproducir</button>
-        <button id="pauseBtn">⏸ Pausar</button>
         <button id="stopBtn">■ Detener</button>
       </div>
-      <div class="now-speaking" id="nowSpeaking"></div>
+      <div id="nowSpeaking" style="margin-top:12px;font-size:14px;"></div>
     </div>
     <div id="scriptContainer"></div>
   </div>
@@ -188,24 +155,39 @@
     <div id="quizContainer"></div>
   </div>
 
+  <!-- Flashcards -->
+  <div class="panel" id="panel-flashcards">
+    <p style="text-align:center;color:#888;">Haz clic en la tarjeta para girarla.</p>
+    <div class="flashcard-container" id="flashcardBox">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-front" id="fcFront">Word</div>
+        <div class="flashcard-back" id="fcBack">Translation</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="primary" id="prevFc">⬅ Anterior</button>
+      <button class="primary" id="nextFc">Siguiente ➡</button>
+    </div>
+  </div>
+
   <!-- IA -->
   <div class="panel" id="panel-ai">
     <div class="ask-ai">
-      <h3>🤖 Genera un simulacro de examen</h3>
-      <p>Escribe los temas que entran en tu examen. La IA creará 5 preguntas para que practiques.</p>
-      <input type="text" id="aiTopic" placeholder="Ej: Mi examen es de Past Simple, comparativos y vocabulario de viajes">
+      <h3>🤖 Simulacro de Examen</h3>
+      <p>Escribe los temas y la IA creará 5 preguntas.</p>
+      <input type="text" id="aiTopic" placeholder="Ej: Past Simple, comparativos...">
       <br>
-      <button class="primary" id="aiGenerateBtn">Generar preguntas de examen</button>
-      <div id="aiLoading" style="display:none;margin-top:12px;">⏳ Creando simulacro...</div>
+      <button class="primary" id="aiGenerateBtn">Generar preguntas</button>
+      <div id="aiLoading" style="display:none;margin-top:12px;">⏳ Generando...</div>
     </div>
     <div id="aiQuizContainer"></div>
 
-    <hr style="margin:24px 0;border:none;border-top:1px solid #ddd;">
+    <hr style="margin:24px 0;border:none;border-top:1px solid var(--borde);">
 
     <div class="ask-ai">
-      <h3>💬 Pregúntale al Tutor IA</h3>
-      <p>Te explicará en español e inglés. Pídele que te haga preguntas orales o que te resuelva dudas.</p>
-      <input type="text" id="chatInput" placeholder="Ej: Explícame el past simple. O dime: Hazme un simulacro oral.">
+      <h3>💬 Tutor Bilingüe</h3>
+      <p>Te explicará en español e inglés.</p>
+      <input type="text" id="chatInput" placeholder="Ej: Explícame el past simple...">
       <br>
       <button class="primary" id="chatBtn">Enviar</button>
       <div id="chatReply"></div>
@@ -214,78 +196,93 @@
 </div>
 
 <script>
+  // --- Lógica de PWA (Instalación) ---
+  let deferredPrompt;
+  const installBtn = document.getElementById('installBtn');
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block';
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') installBtn.style.display = 'none';
+      deferredPrompt = null;
+    }
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+
+  // --- Lógica de Modo Oscuro ---
+  const themeBtn = document.getElementById('themeBtn');
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+    themeBtn.textContent = '☀️';
+  }
+  themeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    themeBtn.textContent = isDark ? '☀️' : '🌙';
+  });
+
+  // --- DATOS ---
   const TOPICS = {
     present_simple: {
       name: "Present Simple", emoji: "⏰",
       podcast: [
-        { who: "Host",   text: "Welcome to StudyCast, the podcast to review English in minutes. Today we are talking about the present simple." },
-        { who: "Teacher", text: "Thanks, yes. The present simple is for routines, habits and facts." },
-        { who: "Host",   text: "Can you give us an example?" },
-        { who: "Teacher", text: "Sure. I go to school every day. She works in a hospital. Water boils at one hundred degrees." },
-        { who: "Host",   text: "When do we add S to the verb?" },
-        { who: "Teacher", text: "We add S or ES with he, she and it. For example, he plays. She watches. It rains." },
-        { who: "Host",   text: "And negative sentences?" },
-        { who: "Teacher", text: "We use do not or does not. I do not like coffee. He does not play football." },
-        { who: "Host",   text: "Perfect. Quick review: routines and facts, add S with he she it, and use do or does for negatives and questions." },
-        { who: "Teacher", text: "Exactly. Practise a little every day and it will become easy." }
+        { who: "Host", text: "Welcome. Today we talk about the present simple." },
+        { who: "Teacher", text: "It is for routines. I go to school every day. She works in a hospital." }
       ],
       questions: [
         { q: "My sister ___ to school by bus every day.", a: "goes", opts: ["go","goes","going"] },
-        { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] },
-        { q: "We ___ not watch TV in the morning.", a: "do", opts: ["do","does","are"] },
-        { q: "He ___ football on Sundays.", a: "plays", opts: ["play","plays","playing"] },
-        { q: "Water ___ at 100 degrees.", a: "boils", opts: ["boil","boils","boiling"] }
+        { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] }
+      ],
+      flashcards: [
+        { front: "go", back: "ir" }, { front: "work", back: "trabajar" }, { front: "every day", back: "todos los días" }
       ]
     },
     past_simple: {
       name: "Past Simple", emoji: "📅",
       podcast: [
-        { who: "Host",   text: "Today on StudyCast we review the past simple." },
-        { who: "Teacher", text: "The past simple is for actions that finished in the past." },
-        { who: "Host",   text: "Regular and irregular verbs, right?" },
-        { who: "Teacher", text: "Yes. Regular verbs add ED. For example, play becomes played. Watch becomes watched." },
-        { who: "Host",   text: "And irregular verbs?" },
-        { who: "Teacher", text: "They change. Go becomes went. Eat becomes ate. See becomes saw." },
-        { who: "Host",   text: "What about negatives and questions?" },
-        { who: "Teacher", text: "We use did not, or didn't, for negatives. And did for questions. For example, did you go?" },
-        { who: "Host",   text: "Remember: time expressions like yesterday, last week and two days ago." },
-        { who: "Teacher", text: "Great. Practise with a short story every day." }
+        { who: "Host", text: "Today on StudyCast we review the past simple." },
+        { who: "Teacher", text: "Actions that finished. Go becomes went. Eat becomes ate." }
       ],
       questions: [
         { q: "I ___ to the park yesterday.", a: "went", opts: ["go","went","going"] },
-        { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] },
-        { q: "___ you see the film?", a: "Did", opts: ["Do","Did","Does"] },
-        { q: "We ___ not eat at home.", a: "did", opts: ["do","did","does"] },
-        { q: "They ___ pizza two days ago.", a: "ate", opts: ["eat","ate","eating"] }
+        { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] }
+      ],
+      flashcards: [
+        { front: "went", back: "fui / fue" }, { front: "ate", back: "comí / comió" }, { front: "yesterday", back: "ayer" }
       ]
     },
     vocabulary: {
       name: "Vocabulary", emoji: "📚",
       podcast: [
-        { who: "Host",   text: "Welcome back. Today we review useful everyday vocabulary." },
-        { who: "Teacher", text: "Let's start with places in a city: bank, supermarket, pharmacy, library and station." },
-        { who: "Host",   text: "What about food?" },
-        { who: "Teacher", text: "Bread, cheese, milk, fruit, vegetables and meat." },
-        { who: "Host",   text: "And clothes?" },
-        { who: "Teacher", text: "Shirt, trousers, shoes, jacket and hat." },
-        { who: "Host",   text: "How can students remember them?" },
-        { who: "Teacher", text: "Make small groups by theme, and use each word in a sentence." },
-        { who: "Host",   text: "Great tip. Learn five words a day, and review them every week." },
-        { who: "Teacher", text: "Exactly. Little by little, you will know hundreds of words." }
+        { who: "Host", text: "Welcome back. Today we review everyday vocabulary." },
+        { who: "Teacher", text: "Let's start with places: bank, supermarket, pharmacy." }
       ],
       questions: [
         { q: "You buy medicine at the ___.", a: "pharmacy", opts: ["bank","pharmacy","library"] },
-        { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] },
-        { q: "You wear ___ on your feet.", a: "shoes", opts: ["shoes","hat","gloves"] },
-        { q: "A place to borrow books is a ___.", a: "library", opts: ["library","bank","supermarket"] },
-        { q: "The opposite of 'expensive' is ___.", a: "cheap", opts: ["rich","cheap","big"] }
+        { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] }
+      ],
+      flashcards: [
+        { front: "Pharmacy", back: "Farmacia" }, { front: "Bank", back: "Banco" }, { front: "Supermarket", back: "Supermercado" }
       ]
     }
   };
 
-  let currentTopicKey = null;
+  let currentTopicKey = 'present_simple';
   let currentUtterances = [];
+  let currentFcIndex = 0;
 
+  // --- NAVEGACIÓN ---
   const topicGrid = document.getElementById('topicGrid');
   Object.keys(TOPICS).forEach(function(key){
     const t = TOPICS[key];
@@ -304,9 +301,13 @@
       b.classList.toggle('active', b.dataset.key === key);
     });
     const t = TOPICS[key];
-    document.getElementById('podcastTitle').textContent = '🎧 ' + t.name + ' – Podcast';
+    document.getElementById('podcastTitle').textContent = '🎧 ' + t.name;
     renderScript(t.podcast);
     renderQuiz(t.questions, document.getElementById('quizContainer'));
+    renderFlashcards();
+    document.getElementById('flashcard').classList.remove('flipped');
+    currentFcIndex = 0;
+    updateFlashcard();
   }
 
   document.querySelectorAll('.tab').forEach(function(tab){
@@ -318,6 +319,7 @@
     });
   });
 
+  // --- PODCAST ---
   const scriptContainer = document.getElementById('scriptContainer');
   const nowSpeaking = document.getElementById('nowSpeaking');
 
@@ -326,94 +328,59 @@
     lines.forEach(function(line, i){
       const div = document.createElement('div');
       div.className = 'script-line';
-      div.dataset.index = i;
-      div.innerHTML = '<span class="who">' + line.who + '</span>' + line.text;
-      div.addEventListener('click', function(){ playFrom(i); });
+      div.innerHTML = '<span style="color:var(--violeta);font-weight:bold;font-size:12px;display:block;">' + line.who + '</span>' + line.text;
+      div.onclick = () => playFrom(i);
       scriptContainer.appendChild(div);
     });
   }
 
   function playFrom(startIndex) {
-    if (!('speechSynthesis' in window)) {
-      alert('Tu navegador no permite reproducir audio.');
-      return;
-    }
+    if (!('speechSynthesis' in window)) return alert('Tu navegador no soporta audio.');
     stopPodcast();
-    if (!currentTopicKey) return;
     const lines = TOPICS[currentTopicKey].podcast;
     for (let i = startIndex; i < lines.length; i++) {
-      const line = lines[i];
-      const u = new SpeechSynthesisUtterance(line.text);
+      const u = new SpeechSynthesisUtterance(lines[i].text);
       u.lang = 'en-GB';
-      if (line.who === 'Host') { u.pitch = 1.1; u.rate = 0.95; }
+      if (lines[i].who === 'Host') { u.pitch = 1.1; u.rate = 0.95; }
       else { u.pitch = 0.85; u.rate = 0.9; }
-      u.onstart = function(){
-        highlightLine(i);
-        nowSpeaking.textContent = '▶ ' + line.who + ': ' + line.text.slice(0, 60) + '…';
-      };
-      u.onend = function(){
-        if (i === lines.length - 1) {
-          nowSpeaking.textContent = '✅ Podcast terminado';
-          highlightLine(-1);
-        }
-      };
+      u.onstart = () => { nowSpeaking.textContent = '▶ ' + lines[i].who + ': ' + lines[i].text; };
+      u.onend = () => { if (i === lines.length - 1) nowSpeaking.textContent = '✅ Terminado'; };
       currentUtterances.push(u);
       speechSynthesis.speak(u);
     }
   }
 
-  function highlightLine(idx) {
-    document.querySelectorAll('.script-line').forEach(function(el){
-      el.classList.toggle('playing', Number(el.dataset.index) === idx);
-    });
-  }
-
   function stopPodcast() {
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     currentUtterances = [];
-    highlightLine(-1);
     nowSpeaking.textContent = '';
   }
+  document.getElementById('playBtn').onclick = () => playFrom(0);
+  document.getElementById('stopBtn').onclick = stopPodcast;
 
-  document.getElementById('playBtn').addEventListener('click', function(){
-    if (!currentTopicKey) { alert('Elige un tema primero'); return; }
-    playFrom(0);
-  });
-  document.getElementById('pauseBtn').addEventListener('click', function(){
-    if ('speechSynthesis' in window) speechSynthesis.pause();
-  });
-  document.getElementById('stopBtn').addEventListener('click', stopPodcast);
-
+  // --- QUIZ ---
   function renderQuiz(questions, container) {
     container.innerHTML = '';
     const suffix = Math.random().toString(36).slice(2);
-
     questions.forEach(function(item, qIndex){
       const box = document.createElement('div');
       box.className = 'question';
-      const p = document.createElement('p');
-      p.textContent = (qIndex + 1) + '. ' + item.q;
-      box.appendChild(p);
+      box.innerHTML = '<p style="margin:0 0 10px;font-weight:bold;">' + (qIndex + 1) + '. ' + item.q + '</p>';
       const opts = document.createElement('div');
       opts.className = 'options';
       item.opts.forEach(function(opt){
         const label = document.createElement('label');
         const input = document.createElement('input');
-        input.type = 'radio';
-        input.name = 'q' + qIndex + '_' + suffix;
-        input.value = opt;
-        label.appendChild(input);
-        label.appendChild(document.createTextNode(opt));
+        input.type = 'radio'; input.name = 'q' + qIndex + '_' + suffix; input.value = opt;
+        label.appendChild(input); label.appendChild(document.createTextNode(opt));
         opts.appendChild(label);
       });
-      box.appendChild(opts);
-      container.appendChild(box);
+      box.appendChild(opts); container.appendChild(box);
     });
 
     const checkBtn = document.createElement('button');
-    checkBtn.className = 'primary';
-    checkBtn.textContent = 'Corregir respuestas';
-    checkBtn.addEventListener('click', function(){
+    checkBtn.className = 'primary'; checkBtn.textContent = 'Corregir respuestas';
+    checkBtn.onclick = function(){
       let score = 0;
       questions.forEach(function(item, qIndex){
         const labels = container.querySelectorAll('.question')[qIndex].querySelectorAll('label');
@@ -428,30 +395,56 @@
       const oldScore = container.querySelector('.score');
       if (oldScore) oldScore.remove();
       const scoreEl = document.createElement('div');
-      scoreEl.className = 'score';
-      scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
+      scoreEl.className = 'score'; scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
       container.appendChild(scoreEl);
-    });
+    };
     container.appendChild(checkBtn);
   }
 
-  // --- Lógica de la IA ---
-  document.getElementById('aiGenerateBtn').addEventListener('click', async function(){
-    const topic = document.getElementById('aiTopic').value.trim();
-    if (!topic) { alert('Escribe qué temas entran en tu examen'); return; }
+  // --- FLASHCARDS ---
+  function renderFlashcards() {
+    const cards = TOPICS[currentTopicKey].flashcards;
+    currentFcIndex = 0;
+    updateFlashcard();
+  }
 
+  function updateFlashcard() {
+    const cards = TOPICS[currentTopicKey].flashcards;
+    if (!cards || cards.length === 0) return;
+    const card = cards[currentFcIndex];
+    document.getElementById('fcFront').textContent = card.front;
+    document.getElementById('fcBack').textContent = card.back;
+    document.getElementById('flashcard').classList.remove('flipped');
+  }
+
+  document.getElementById('flashcardBox').onclick = () => {
+    document.getElementById('flashcard').classList.toggle('flipped');
+  };
+
+  document.getElementById('nextFc').onclick = () => {
+    const cards = TOPICS[currentTopicKey].flashcards;
+    currentFcIndex = (currentFcIndex + 1) % cards.length;
+    updateFlashcard();
+  };
+
+  document.getElementById('prevFc').onclick = () => {
+    const cards = TOPICS[currentTopicKey].flashcards;
+    currentFcIndex = (currentFcIndex - 1 + cards.length) % cards.length;
+    updateFlashcard();
+  };
+
+  // --- IA ---
+  document.getElementById('aiGenerateBtn').onclick = async function(){
+    const topic = document.getElementById('aiTopic').value.trim();
+    if (!topic) return alert('Escribe un tema');
     const loading = document.getElementById('aiLoading');
     const container = document.getElementById('aiQuizContainer');
     const btn = document.getElementById('aiGenerateBtn');
-
-    loading.style.display = 'block';
-    container.innerHTML = '';
-    btn.disabled = true;
+    loading.style.display = 'block'; container.innerHTML = ''; btn.disabled = true;
 
     try {
       const res = await fetch('/api/quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: topic })
       });
       const data = await res.json();
@@ -460,25 +453,20 @@
     } catch (err) {
       container.innerHTML = '<p style="color:#b71c1c;padding:12px;">Error: ' + err.message + '</p>';
     } finally {
-      loading.style.display = 'none';
-      btn.disabled = false;
+      loading.style.display = 'none'; btn.disabled = false;
     }
-  });
+  };
 
-  document.getElementById('chatBtn').addEventListener('click', async function(){
+  document.getElementById('chatBtn').onclick = async function(){
     const msg = document.getElementById('chatInput').value.trim();
     if (!msg) return;
-
     const replyBox = document.getElementById('chatReply');
     const btn = document.getElementById('chatBtn');
-    replyBox.style.display = 'block';
-    replyBox.textContent = '⏳ Pensando...';
-    btn.disabled = true;
+    replyBox.style.display = 'block'; replyBox.textContent = '⏳ Pensando...'; btn.disabled = true;
 
     try {
       const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg })
       });
       const data = await res.json();
@@ -489,8 +477,9 @@
     } finally {
       btn.disabled = false;
     }
-  });
+  };
 
+  // Iniciar
   selectTopic('present_simple');
 </script>
 </body>
