@@ -25,7 +25,8 @@ app.post('/api/quiz', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        // CAMBIO AQUÍ: Usamos un modelo actualizado y gratuito
+        model: 'llama-3.3-70b-versatile', 
         messages: [
           {
             role: 'system',
@@ -77,7 +78,8 @@ app.post('/api/chat', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        // CAMBIO AQUÍ: Usamos un modelo actualizado y gratuito
+        model: 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',
