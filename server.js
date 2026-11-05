@@ -37,7 +37,7 @@ app.post('/api/quiz', async (req, res) => {
             role: 'user',
             content:
               'Genera 5 preguntas tipo test de nivel ' + level + ' sobre: ' + topic +
-              '. Cada pregunta tiene 3 opciones y una sola correcta. NO incluyas letras (A, B, C) en las opciones.'
+              '. Cada pregunta tiene 3 opciones y una sola correcta. Las preguntas deben estar en inglés. NO incluyas letras (A, B, C) en las opciones.'
           }
         ],
         temperature: 0.7
@@ -64,7 +64,7 @@ app.post('/api/quiz', async (req, res) => {
   }
 });
 
-/* ---------- Chat con profe IA ---------- */
+/* ---------- Chat con profe IA (Bilingüe) ---------- */
 app.post('/api/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Falta mensaje' });
@@ -82,8 +82,11 @@ app.post('/api/chat', async (req, res) => {
           {
             role: 'system',
             content:
-              'Eres un profesor de inglés amable. Explicas en español, con ejemplos en inglés. ' +
-              'Respuestas cortas y claras. Nivel del alumno: A2-B1.'
+              'Eres un profesor de inglés amable y bilingüe. ' +
+              'SIEMPRE debes explicar el concepto primero en ESPAÑOL, y luego dar la explicación o ejemplos en INGLÉS. ' +
+              'Formato de tu respuesta: \n' +
+              '🇪🇸 [Explicación en español]\n\n' +
+              '🇬🇧 [Explanation in English]'
           },
           { role: 'user', content: message }
         ],
