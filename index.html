@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyCast · Repaso con Podcast</title>
+<title>StudyCast · Repaso con Podcast e IA</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 <style>
   :root {
     --azul: #1f4e79;
@@ -120,15 +121,15 @@
   }
 
   .ask-ai {
-    text-align: center; padding: 30px 20px;
+    text-align: center; padding: 24px 16px;
     background: var(--gris); border-radius: 14px;
+    margin-bottom: 12px;
   }
-  .ask-ai p { color: #666; margin: 0 0 14px; }
-  .ask-ai button {
-    background: var(--azul); color: #fff;
-    border: none; border-radius: 10px;
-    padding: 12px 20px; font-size: 15px;
-    cursor: not-allowed; opacity: .5;
+  .ask-ai p { color: #666; margin: 0 0 12px; }
+  .ask-ai input[type="text"] {
+    padding: 10px 12px; border: 1.5px solid var(--borde);
+    border-radius: 10px; font-size: 15px; width: 100%;
+    max-width: 400px; margin-bottom: 10px; font-family: inherit;
   }
 
   button.primary {
@@ -138,6 +139,14 @@
     cursor: pointer; font-weight: 600;
   }
   button.primary:hover { background: #163a5a; }
+  button.primary:disabled { background: #b0bec5; cursor: not-allowed; }
+
+  #chatReply {
+    margin-top: 12px; text-align: left;
+    background: #fff; padding: 12px;
+    border-radius: 10px; border: 1px solid var(--borde);
+    display: none; white-space: pre-wrap;
+  }
 
   @media (max-width: 500px) {
     h1 { font-size: 22px; }
@@ -149,7 +158,7 @@
 <div class="container">
   <header>
     <h1>🎓 StudyCast</h1>
-    <p class="subtitle">Repasa con podcast y preguntas</p>
+    <p class="subtitle">Repasa con podcast, quizzes e IA</p>
   </header>
 
   <div class="topic-grid" id="topicGrid"></div>
@@ -157,9 +166,10 @@
   <div class="tabs">
     <button class="tab active" data-tab="podcast">🎙️ Podcast</button>
     <button class="tab" data-tab="quiz">📝 Quiz</button>
-    <button class="tab" data-tab="ai">🤖 Preguntar a la IA</button>
+    <button class="tab" data-tab="ai">🤖 IA</button>
   </div>
 
+  <!-- Podcast -->
   <div class="panel active" id="panel-podcast">
     <div class="podcast-player">
       <p class="podcast-title" id="podcastTitle">Elige un tema arriba</p>
@@ -173,25 +183,41 @@
     <div id="scriptContainer"></div>
   </div>
 
+  <!-- Quiz -->
   <div class="panel" id="panel-quiz">
     <div id="quizContainer"></div>
   </div>
 
+  <!-- IA -->
   <div class="panel" id="panel-ai">
     <div class="ask-ai">
-      <h3>🤖 Preguntas con IA</h3>
-      <p>Esta función necesita conectar un backend.<br>
-         Lee el paso a paso en <strong>server.js</strong>.</p>
-      <button disabled>Preguntar a la IA (próximamente)</button>
+      <h3>🤖 Genera preguntas con IA</h3>
+      <p>Escribe un tema y la IA creará 5 preguntas nuevas.</p>
+      <input type="text" id="aiTopic" placeholder="Ej: present perfect, phrasal verbs, travel vocabulary...">
+      <br>
+      <button class="primary" id="aiGenerateBtn">Generar 5 preguntas</button>
+      <div id="aiLoading" style="display:none;margin-top:12px;">⏳ Generando preguntas...</div>
+    </div>
+    <div id="aiQuizContainer"></div>
+
+    <hr style="margin:24px 0;border:none;border-top:1px solid #ddd;">
+
+    <div class="ask-ai">
+      <h3>💬 Pregunta al profe IA</h3>
+      <p>Ej: "Explícame el past simple con ejemplos"</p>
+      <input type="text" id="chatInput" placeholder="Escribe tu pregunta...">
+      <br>
+      <button class="primary" id="chatBtn">Enviar</button>
+      <div id="chatReply"></div>
     </div>
   </div>
 </div>
 
 <script>
+  /* ========== DATOS ========== */
   const TOPICS = {
     present_simple: {
-      name: "Present Simple",
-      emoji: "⏰",
+      name: "Present Simple", emoji: "⏰",
       podcast: [
         { who: "Host",   text: "Welcome to StudyCast, the podcast to review English in minutes. Today we are talking about the present simple." },
         { who: "Teacher", text: "Thanks, yes. The present simple is for routines, habits and facts." },
@@ -213,8 +239,7 @@
       ]
     },
     past_simple: {
-      name: "Past Simple",
-      emoji: "📅",
+      name: "Past Simple", emoji: "📅",
       podcast: [
         { who: "Host",   text: "Today on StudyCast we review the past simple." },
         { who: "Teacher", text: "The past simple is for actions that finished in the past." },
@@ -236,8 +261,7 @@
       ]
     },
     vocabulary: {
-      name: "Vocabulary",
-      emoji: "📚",
+      name: "Vocabulary", emoji: "📚",
       podcast: [
         { who: "Host",   text: "Welcome back. Today we review useful everyday vocabulary." },
         { who: "Teacher", text: "Let's start with places in a city: bank, supermarket, pharmacy, library and station." },
@@ -263,6 +287,7 @@
   let currentTopicKey = null;
   let currentUtterances = [];
 
+  /* ========== TEMAS ========== */
   const topicGrid = document.getElementById('topicGrid');
   Object.keys(TOPICS).forEach(function(key){
     const t = TOPICS[key];
@@ -283,9 +308,10 @@
     const t = TOPICS[key];
     document.getElementById('podcastTitle').textContent = '🎧 ' + t.name + ' – Podcast';
     renderScript(t.podcast);
-    renderQuiz(t.questions);
+    renderQuiz(t.questions, document.getElementById('quizContainer'));
   }
 
+  /* ========== TABS ========== */
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.addEventListener('click', function(){
       document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
@@ -295,6 +321,7 @@
     });
   });
 
+  /* ========== PODCAST ========== */
   const scriptContainer = document.getElementById('scriptContainer');
   const nowSpeaking = document.getElementById('nowSpeaking');
 
@@ -318,7 +345,6 @@
     stopPodcast();
     if (!currentTopicKey) return;
     const lines = TOPICS[currentTopicKey].podcast;
-    currentUtterances = [];
     for (let i = startIndex; i < lines.length; i++) {
       const line = lines[i];
       const u = new SpeechSynthesisUtterance(line.text);
@@ -336,8 +362,8 @@
         }
       };
       currentUtterances.push(u);
+      speechSynthesis.speak(u);
     }
-    currentUtterances.forEach(function(u){ speechSynthesis.speak(u); });
   }
 
   function highlightLine(idx) {
@@ -348,6 +374,7 @@
 
   function stopPodcast() {
     if ('speechSynthesis' in window) speechSynthesis.cancel();
+    currentUtterances = [];
     highlightLine(-1);
     nowSpeaking.textContent = '';
   }
@@ -361,10 +388,11 @@
   });
   document.getElementById('stopBtn').addEventListener('click', stopPodcast);
 
-  const quizContainer = document.getElementById('quizContainer');
+  /* ========== QUIZ ========== */
+  function renderQuiz(questions, container) {
+    container.innerHTML = '';
+    const suffix = Math.random().toString(36).slice(2);
 
-  function renderQuiz(questions) {
-    quizContainer.innerHTML = '';
     questions.forEach(function(item, qIndex){
       const box = document.createElement('div');
       box.className = 'question';
@@ -377,14 +405,14 @@
         const label = document.createElement('label');
         const input = document.createElement('input');
         input.type = 'radio';
-        input.name = 'q' + qIndex;
+        input.name = 'q' + qIndex + '_' + suffix;
         input.value = opt;
         label.appendChild(input);
         label.appendChild(document.createTextNode(opt));
         opts.appendChild(label);
       });
       box.appendChild(opts);
-      quizContainer.appendChild(box);
+      container.appendChild(box);
     });
 
     const checkBtn = document.createElement('button');
@@ -393,29 +421,83 @@
     checkBtn.addEventListener('click', function(){
       let score = 0;
       questions.forEach(function(item, qIndex){
-        const labels = quizContainer.querySelectorAll('.question')[qIndex].querySelectorAll('label');
+        const labels = container.querySelectorAll('.question')[qIndex].querySelectorAll('label');
         labels.forEach(function(label){
           const input = label.querySelector('input');
-          if (input.checked && input.value === item.a) {
-            label.classList.add('correct');
-            score++;
-          } else if (input.checked) {
-            label.classList.add('wrong');
-          }
+          if (input.checked && input.value === item.a) { label.classList.add('correct'); score++; }
+          else if (input.checked) { label.classList.add('wrong'); }
           if (input.value === item.a) label.classList.add('correct');
           input.disabled = true;
         });
       });
-      const oldScore = quizContainer.querySelector('.score');
+      const oldScore = container.querySelector('.score');
       if (oldScore) oldScore.remove();
       const scoreEl = document.createElement('div');
       scoreEl.className = 'score';
       scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
-      quizContainer.appendChild(scoreEl);
+      container.appendChild(scoreEl);
     });
-    quizContainer.appendChild(checkBtn);
+    container.appendChild(checkBtn);
   }
 
+  /* ========== IA: GENERAR PREGUNTAS ========== */
+  document.getElementById('aiGenerateBtn').addEventListener('click', async function(){
+    const topic = document.getElementById('aiTopic').value.trim();
+    if (!topic) { alert('Escribe un tema'); return; }
+
+    const loading = document.getElementById('aiLoading');
+    const container = document.getElementById('aiQuizContainer');
+    const btn = document.getElementById('aiGenerateBtn');
+
+    loading.style.display = 'block';
+    container.innerHTML = '';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: topic })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      renderQuiz(data.questions, container);
+    } catch (err) {
+      container.innerHTML = '<p style="color:#b71c1c;padding:12px;">Error: ' + err.message + '</p>';
+    } finally {
+      loading.style.display = 'none';
+      btn.disabled = false;
+    }
+  });
+
+  /* ========== IA: CHAT ========== */
+  document.getElementById('chatBtn').addEventListener('click', async function(){
+    const msg = document.getElementById('chatInput').value.trim();
+    if (!msg) return;
+
+    const replyBox = document.getElementById('chatReply');
+    const btn = document.getElementById('chatBtn');
+    replyBox.style.display = 'block';
+    replyBox.textContent = '⏳ Pensando...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      replyBox.textContent = data.reply;
+    } catch (err) {
+      replyBox.textContent = 'Error: ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  /* ========== INICIO ========== */
   selectTopic('present_simple');
 </script>
 </body>
