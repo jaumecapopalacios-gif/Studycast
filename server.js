@@ -12,7 +12,7 @@ app.use(express.static(__dirname));
 const GROQ_KEY = process.env.GROQ_API_KEY;
 if (!GROQ_KEY) console.warn('⚠️ Falta GROQ_API_KEY. La IA no funcionará.');
 
-/* ---------- Generar preguntas ---------- */
+/* ---------- Generar preguntas de examen ---------- */
 app.post('/api/quiz', async (req, res) => {
   const { topic, level = 'A2-B1' } = req.body;
   if (!topic) return res.status(400).json({ error: 'Falta el tema' });
@@ -25,20 +25,19 @@ app.post('/api/quiz', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        // CAMBIO AQUÍ: Usamos un modelo actualizado y gratuito
-        model: 'llama-3.3-70b-versatile', 
+        model: 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',
             content:
-              'Eres un profesor de inglés. Devuelves SOLO JSON válido, sin texto extra, sin markdown. ' +
-              'Formato: {"questions":[{"q":"pregunta","a":"respuesta correcta","opts":["a","b","c"]}]}'
+              'Eres un profesor de inglés preparando a un alumno para su examen. Devuelves SOLO JSON válido, sin texto extra, sin markdown. ' +
+              'Formato exacto: {"questions":[{"q":"pregunta","a":"respuesta correcta","opts":["opción1","opción2","opción3"]}]}'
           },
           {
             role: 'user',
             content:
               'Genera 5 preguntas tipo test de nivel ' + level + ' sobre: ' + topic +
-              '. Cada pregunta tiene 3 opciones y una sola correcta. Las preguntas deben estar en inglés. NO incluyas letras (A, B, C) en las opciones.'
+              '. Las preguntas deben estar en inglés. Cada pregunta tiene 3 opciones y una sola correcta. NO incluyas letras (A, B, C) en las opciones.'
           }
         ],
         temperature: 0.7
@@ -65,7 +64,7 @@ app.post('/api/quiz', async (req, res) => {
   }
 });
 
-/* ---------- Chat con profe IA (Bilingüe) ---------- */
+/* ---------- Chat: El Examinador Bilingüe ---------- */
 app.post('/api/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Falta mensaje' });
@@ -78,17 +77,17 @@ app.post('/api/chat', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        // CAMBIO AQUÍ: Usamos un modelo actualizado y gratuito
         model: 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',
             content:
-              'Eres un profesor de inglés amable y bilingüe. ' +
-              'SIEMPRE debes explicar el concepto primero en ESPAÑOL, y luego dar la explicación o ejemplos en INGLÉS. ' +
-              'Formato de tu respuesta: \n' +
-              '🇪🇸 [Explicación en español]\n\n' +
-              '🇬🇧 [Explanation in English]'
+              'Eres un examinador de inglés bilingüe. Estás ayudando a un estudiante a preparar su examen. ' +
+              'SIEMPRE debes usar este formato en tus respuestas:\n' +
+              '🇪🇸 [Explicación clara en español]\n\n' +
+              '🇬🇧 [Explanation in English]\n\n' +
+              'Si el alumno te pide un simulacro de examen, hazle UNA pregunta a la vez y espera su respuesta para corregirle. ' +
+              'Sé estricto pero motivador.'
           },
           { role: 'user', content: message }
         ],
@@ -103,7 +102,7 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-/* ---------- Servir index.html ---------- */
+/* ---------- Servir la web ---------- */
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
