@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studycast-v7'; // 👈 VERSIÓN ACTUALIZADA
+const CACHE_NAME = 'studycast-v8'; 
 const ASSETS = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
