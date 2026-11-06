@@ -55,6 +55,7 @@
     background: var(--gris); border: none; border-radius: 50%;
     width: 36px; height: 36px; cursor: pointer; font-size: 16px;
     display: flex; align-items: center; justify-content: center;
+    color: var(--texto);
   }
 
   .install-btn {
@@ -140,7 +141,7 @@
   <!-- Podcast -->
   <div class="panel active" id="panel-podcast">
     <div class="podcast-player">
-      <p id="podcastTitle">Elige un tema arriba</p>
+      <p id="podcastTitle" style="margin-top:0;">Elige un tema arriba</p>
       <div class="podcast-controls">
         <button id="playBtn">▶ Reproducir</button>
         <button id="stopBtn">■ Detener</button>
@@ -232,48 +233,107 @@
     themeBtn.textContent = isDark ? '☀️' : '🌙';
   });
 
-  // --- DATOS ---
+  // --- DATOS ACTUALIZADOS CON 15 PREGUNTAS Y 15 FLASHCARDS ---
   const TOPICS = {
     present_simple: {
       name: "Present Simple", emoji: "⏰",
       podcast: [
         { who: "Host", text: "Welcome. Today we talk about the present simple." },
-        { who: "Teacher", text: "It is for routines. I go to school every day. She works in a hospital." }
+        { who: "Teacher", text: "It is for routines, habits and facts. I go to school every day. She works in a hospital." },
+        { who: "Host", text: "When do we add S?" },
+        { who: "Teacher", text: "With he, she, it. He plays. She watches." },
+        { who: "Host", text: "And negatives?" },
+        { who: "Teacher", text: "We use do not or does not. I do not like coffee." }
       ],
       questions: [
         { q: "My sister ___ to school by bus every day.", a: "goes", opts: ["go","goes","going"] },
-        { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] }
+        { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] },
+        { q: "We ___ not watch TV in the morning.", a: "do", opts: ["do","does","are"] },
+        { q: "He ___ football on Sundays.", a: "plays", opts: ["play","plays","playing"] },
+        { q: "Water ___ at 100 degrees.", a: "boils", opts: ["boil","boils","boiling"] },
+        { q: "They ___ in a big house.", a: "live", opts: ["live","lives","living"] },
+        { q: "I ___ coffee every morning.", a: "drink", opts: ["drink","drinks","drinking"] },
+        { q: "___ they play tennis?", a: "Do", opts: ["Do","Does","Are"] },
+        { q: "She ___ have a car.", a: "doesn't", opts: ["don't","doesn't","isn't"] },
+        { q: "The train ___ at 9:00.", a: "leaves", opts: ["leave","leaves","leaving"] },
+        { q: "You ___ English very well.", a: "speak", opts: ["speak","speaks","speaking"] },
+        { q: "My brother ___ his teeth twice a day.", a: "brushes", opts: ["brush","brushes","brushing"] },
+        { q: "We ___ to the gym on Mondays.", a: "go", opts: ["go","goes","going"] },
+        { q: "It ___ a lot in winter.", a: "rains", opts: ["rain","rains","raining"] },
+        { q: "___ he work in a bank?", a: "Does", opts: ["Do","Does","Is"] }
       ],
       flashcards: [
-        { front: "go", back: "ir" }, { front: "work", back: "trabajar" }, { front: "every day", back: "todos los días" }
+        { front: "go", back: "ir" }, { front: "work", back: "trabajar" }, { front: "every day", back: "todos los días" },
+        { front: "always", back: "siempre" }, { front: "never", back: "nunca" }, { front: "often", back: "a menudo" },
+        { front: "sometimes", back: "a veces" }, { front: "usually", back: "usualmente" }, { front: "play", back: "jugar" },
+        { front: "study", back: "estudiar" }, { front: "watch", back: "mirar" }, { front: "read", back: "leer" },
+        { front: "write", back: "escribir" }, { front: "listen", back: "escuchar" }, { front: "speak", back: "hablar" }
       ]
     },
     past_simple: {
       name: "Past Simple", emoji: "📅",
       podcast: [
         { who: "Host", text: "Today on StudyCast we review the past simple." },
-        { who: "Teacher", text: "Actions that finished. Go becomes went. Eat becomes ate." }
+        { who: "Teacher", text: "Actions that finished in the past. Go becomes went. Eat becomes ate." },
+        { who: "Host", text: "What about negatives?" },
+        { who: "Teacher", text: "We use did not. For example, I did not go." }
       ],
       questions: [
         { q: "I ___ to the park yesterday.", a: "went", opts: ["go","went","going"] },
-        { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] }
+        { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] },
+        { q: "___ you see the film?", a: "Did", opts: ["Do","Did","Does"] },
+        { q: "We ___ not eat at home.", a: "did", opts: ["do","did","does"] },
+        { q: "They ___ pizza two days ago.", a: "ate", opts: ["eat","ate","eating"] },
+        { q: "He ___ a new car last week.", a: "bought", opts: ["buy","bought","buying"] },
+        { q: "I ___ my homework last night.", a: "did", opts: ["do","did","doing"] },
+        { q: "Where ___ you go yesterday?", a: "did", opts: ["do","did","does"] },
+        { q: "She ___ in London in 2010.", a: "lived", opts: ["live","lived","living"] },
+        { q: "We ___ to the beach last summer.", a: "went", opts: ["go","went","going"] },
+        { q: "He ___ not play football.", a: "did", opts: ["do","did","does"] },
+        { q: "I ___ a great movie last night.", a: "saw", opts: ["see","saw","seeing"] },
+        { q: "They ___ their friends at the party.", a: "met", opts: ["meet","met","meeting"] },
+        { q: "She ___ a beautiful song.", a: "sang", opts: ["sing","sang","singing"] },
+        { q: "___ they arrive on time?", a: "Did", opts: ["Do","Did","Does"] }
       ],
       flashcards: [
-        { front: "went", back: "fui / fue" }, { front: "ate", back: "comí / comió" }, { front: "yesterday", back: "ayer" }
+        { front: "went", back: "fui / fue" }, { front: "ate", back: "comí / comió" }, { front: "yesterday", back: "ayer" },
+        { front: "last night", back: "anoche" }, { front: "bought", back: "compré / compró" }, { front: "saw", back: "vi / vio" },
+        { front: "met", back: "conocí / conoció" }, { front: "sang", back: "canté / cantó" }, { front: "did", back: "hice / hizo" },
+        { front: "lived", back: "viví / vivió" }, { front: "watched", back: "miré / miró" }, { front: "played", back: "jugué / jugó" },
+        { front: "studied", back: "estudié / estudió" }, { front: "worked", back: "trabajé / trabajó" }, { front: "wrote", back: "escribí / escribió" }
       ]
     },
     vocabulary: {
       name: "Vocabulary", emoji: "📚",
       podcast: [
         { who: "Host", text: "Welcome back. Today we review everyday vocabulary." },
-        { who: "Teacher", text: "Let's start with places: bank, supermarket, pharmacy." }
+        { who: "Teacher", text: "Let's start with places: bank, supermarket, pharmacy." },
+        { who: "Host", text: "And food?" },
+        { who: "Teacher", text: "Bread, cheese, milk, fruit, vegetables." }
       ],
       questions: [
         { q: "You buy medicine at the ___.", a: "pharmacy", opts: ["bank","pharmacy","library"] },
-        { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] }
+        { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] },
+        { q: "You wear ___ on your feet.", a: "shoes", opts: ["shoes","hat","gloves"] },
+        { q: "A place to borrow books is a ___.", a: "library", opts: ["library","bank","supermarket"] },
+        { q: "The opposite of 'expensive' is ___.", a: "cheap", opts: ["rich","cheap","big"] },
+        { q: "You sleep in a ___.", a: "bed", opts: ["bed","chair","table"] },
+        { q: "We use a ___ to cut paper.", a: "scissors", opts: ["scissors","spoon","plate"] },
+        { q: "The opposite of 'fast' is ___.", a: "slow", opts: ["quick","slow","big"] },
+        { q: "You can catch a ___ at the station.", a: "train", opts: ["train","bike","plane"] },
+        { q: "He is a ___. He flies planes.", a: "pilot", opts: ["driver","pilot","chef"] },
+        { q: "We eat soup with a ___.", a: "spoon", opts: ["fork","knife","spoon"] },
+        { q: "The sun rises in the ___.", a: "east", opts: ["west","east","north"] },
+        { q: "A ___ works in a hospital.", a: "doctor", opts: ["teacher","doctor","pilot"] },
+        { q: "I need a ___ to write this down.", a: "pen", opts: ["pen","cup","shoe"] },
+        { q: "The opposite of 'happy' is ___.", a: "sad", opts: ["angry","sad","tired"] }
       ],
       flashcards: [
-        { front: "Pharmacy", back: "Farmacia" }, { front: "Bank", back: "Banco" }, { front: "Supermarket", back: "Supermercado" }
+        { front: "Pharmacy", back: "Farmacia" }, { front: "Bank", back: "Banco" }, { front: "Supermarket", back: "Supermercado" },
+        { front: "Library", back: "Biblioteca" }, { front: "Ticket", back: "Boleto / Billete" }, { front: "Train", back: "Tren" },
+        { front: "Bed", back: "Cama" }, { front: "Shoes", back: "Zapatos" }, { front: "Pilot", back: "Piloto" },
+        { front: "Doctor", back: "Médico" }, { front: "Teacher", back: "Profesor" }, { front: "Spoon", back: "Cuchara" },
+        { front: "Scissors", back: "Tijeras" }, { front: "East", back: "Este" }, { front: "Pen", back: "Bolígrafo" }
       ]
     }
   };
@@ -304,10 +364,9 @@
     document.getElementById('podcastTitle').textContent = '🎧 ' + t.name;
     renderScript(t.podcast);
     renderQuiz(t.questions, document.getElementById('quizContainer'));
-    renderFlashcards();
-    document.getElementById('flashcard').classList.remove('flipped');
     currentFcIndex = 0;
     updateFlashcard();
+    document.getElementById('flashcard').classList.remove('flipped');
   }
 
   document.querySelectorAll('.tab').forEach(function(tab){
@@ -402,12 +461,6 @@
   }
 
   // --- FLASHCARDS ---
-  function renderFlashcards() {
-    const cards = TOPICS[currentTopicKey].flashcards;
-    currentFcIndex = 0;
-    updateFlashcard();
-  }
-
   function updateFlashcard() {
     const cards = TOPICS[currentTopicKey].flashcards;
     if (!cards || cards.length === 0) return;
