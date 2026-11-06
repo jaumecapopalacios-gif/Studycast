@@ -51,6 +51,7 @@
   .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 24px; font-weight: bold; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
   .flashcard-front { background: var(--azul); color: #fff; }
   .flashcard-back { background: var(--violeta); color: #fff; transform: rotateY(180deg); }
+  #fcCounter { text-align: center; font-weight: bold; font-size: 16px; color: var(--azul); margin-bottom: 10px; }
   
   .ask-ai { text-align: center; padding: 24px 16px; background: var(--gris); border-radius: 14px; margin-bottom: 12px; }
   .ask-ai input[type="text"] { padding: 10px; border: 1.5px solid var(--borde); border-radius: 10px; width: 100%; max-width: 400px; margin-bottom: 10px; background: var(--tarjeta); color: var(--texto); }
@@ -64,7 +65,7 @@
   <header>
     <div class="top-btns"><button class="icon-btn" id="themeBtn">🌙</button></div>
     <h1>🎓 StudyCast</h1>
-    <p class="subtitle">Tu App de Estudio para el Examen</p>
+    <p class="subtitle">Tu App de Estudio</p>
   </header>
 
   <div class="topic-grid" id="topicGrid"></div>
@@ -85,10 +86,16 @@
     <div id="scriptContainer"></div>
   </div>
 
-  <div class="panel" id="panel-quiz"><div id="quizContainer"></div></div>
+  <div class="panel" id="panel-quiz">
+    <div style="text-align:right; margin-bottom:10px;">
+      <button id="reshuffleBtn" style="background:var(--violeta); color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:13px;">🔄 Mezclar de nuevo</button>
+    </div>
+    <div id="quizContainer"></div>
+  </div>
 
   <div class="panel" id="panel-flashcards">
-    <p style="text-align:center;color:#888;">Haz clic para girar.</p>
+    <p style="text-align:center;color:#888;">Haz clic en la tarjeta para girarla.</p>
+    <p id="fcCounter">1 / 15</p>
     <div class="flashcard-container" id="flashcardBox">
       <div class="flashcard" id="flashcard"><div class="flashcard-front" id="fcFront">Word</div><div class="flashcard-back" id="fcBack">Translation</div></div>
     </div>
@@ -115,8 +122,11 @@
 </div>
 
 <script>
-  // --- VARIABLE PARA GUARDAR EL CONTEXTO DEL QUIZ ---
   let contextoQuiz = null; 
+  let currentFlashcards = []; // Guarda las tarjetas mezcladas
+  let currentFcIndex = 0;
+  let currentUtterances = [];
+  let currentTopicKey = 'present_simple';
 
   // Modo Oscuro
   const themeBtn = document.getElementById('themeBtn');
@@ -126,11 +136,17 @@
   const TOPICS = {
     present_simple: {
       name: "Present Simple", emoji: "⏰",
-      podcast: [{ who: "Host", text: "Welcome." }, { who: "Teacher", text: "It is for routines. I go to school every day." }],
+      podcast: [{ who: "Host", text: "Welcome." }, { who: "Teacher", text: "It is for routines." }],
       questions: [
         { q: "My sister ___ to school by bus every day.", a: "goes", opts: ["go","goes","going"] }, { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] }, { q: "We ___ not watch TV.", a: "do", opts: ["do","does","are"] }, { q: "He ___ football.", a: "plays", opts: ["play","plays","playing"] }, { q: "Water ___ at 100 degrees.", a: "boils", opts: ["boil","boils","boiling"] }, { q: "They ___ in a big house.", a: "live", opts: ["live","lives","living"] }, { q: "I ___ coffee.", a: "drink", opts: ["drink","drinks","drinking"] }, { q: "___ they play tennis?", a: "Do", opts: ["Do","Does","Are"] }, { q: "She ___ have a car.", a: "doesn't", opts: ["don't","doesn't","isn't"] }, { q: "The train ___ at 9:00.", a: "leaves", opts: ["leave","leaves","leaving"] }, { q: "You ___ English.", a: "speak", opts: ["speak","speaks","speaking"] }, { q: "My brother ___ his teeth.", a: "brushes", opts: ["brush","brushes","brushing"] }, { q: "We ___ to the gym.", a: "go", opts: ["go","goes","going"] }, { q: "It ___ a lot.", a: "rains", opts: ["rain","rains","raining"] }, { q: "___ he work in a bank?", a: "Does", opts: ["Do","Does","Is"] }
       ],
-      flashcards: [{ front: "go", back: "ir" }, { front: "work", back: "trabajar" }, { front: "every day", back: "todos los días" }, { front: "always", back: "siempre" }, { front: "never", back: "nunca" }, { front: "often", back: "a menudo" }, { front: "sometimes", back: "a veces" }, { front: "usually", back: "usualmente" }, { front: "play", back: "jugar" }, { front: "study", back: "estudiar" }, { front: "watch", back: "mirar" }, { front: "read", back: "leer" }, { front: "write", back: "escribir" }, { front: "listen", back: "escuchar" }, { front: "speak", back: "hablar" }]
+      flashcards: [
+        { front: "go", back: "ir" }, { front: "work", back: "trabajar" }, { front: "every day", back: "todos los días" },
+        { front: "always", back: "siempre" }, { front: "never", back: "nunca" }, { front: "often", back: "a menudo" },
+        { front: "sometimes", back: "a veces" }, { front: "usually", back: "usualmente" }, { front: "play", back: "jugar" },
+        { front: "study", back: "estudiar" }, { front: "watch", back: "mirar" }, { front: "read", back: "leer" },
+        { front: "write", back: "escribir" }, { front: "listen", back: "escuchar" }, { front: "speak", back: "hablar" }
+      ]
     },
     past_simple: {
       name: "Past Simple", emoji: "📅",
@@ -138,7 +154,13 @@
       questions: [
         { q: "I ___ to the park yesterday.", a: "went", opts: ["go","went","going"] }, { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] }, { q: "___ you see the film?", a: "Did", opts: ["Do","Did","Does"] }, { q: "We ___ not eat.", a: "did", opts: ["do","did","does"] }, { q: "They ___ pizza.", a: "ate", opts: ["eat","ate","eating"] }, { q: "He ___ a new car.", a: "bought", opts: ["buy","bought","buying"] }, { q: "I ___ my homework.", a: "did", opts: ["do","did","doing"] }, { q: "Where ___ you go?", a: "did", opts: ["do","did","does"] }, { q: "She ___ in London.", a: "lived", opts: ["live","lived","living"] }, { q: "We ___ to the beach.", a: "went", opts: ["go","went","going"] }, { q: "He ___ not play.", a: "did", opts: ["do","did","does"] }, { q: "I ___ a movie.", a: "saw", opts: ["see","saw","seeing"] }, { q: "They ___ their friends.", a: "met", opts: ["meet","met","meeting"] }, { q: "She ___ a song.", a: "sang", opts: ["sing","sang","singing"] }, { q: "___ they arrive?", a: "Did", opts: ["Do","Did","Does"] }
       ],
-      flashcards: [{ front: "went", back: "fui" }, { front: "ate", back: "comí" }, { front: "yesterday", back: "ayer" }, { front: "last night", back: "anoche" }, { front: "bought", back: "compré" }, { front: "saw", back: "vi" }, { front: "met", back: "conocí" }, { front: "sang", back: "canté" }, { front: "did", back: "hice" }, { front: "lived", back: "viví" }, { front: "watched", back: "miré" }, { front: "played", back: "jugué" }, { front: "studied", back: "estudié" }, { front: "worked", back: "trabajé" }, { front: "wrote", back: "escribí" }]
+      flashcards: [
+        { front: "went", back: "fui" }, { front: "ate", back: "comí" }, { front: "yesterday", back: "ayer" },
+        { front: "last night", back: "anoche" }, { front: "bought", back: "compré" }, { front: "saw", back: "vi" },
+        { front: "met", back: "conocí" }, { front: "sang", back: "canté" }, { front: "did", back: "hice" },
+        { front: "lived", back: "viví" }, { front: "watched", back: "miré" }, { front: "played", back: "jugué" },
+        { front: "studied", back: "estudié" }, { front: "worked", back: "trabajé" }, { front: "wrote", back: "escribí" }
+      ]
     },
     vocabulary: {
       name: "Vocabulary", emoji: "📚",
@@ -146,11 +168,16 @@
       questions: [
         { q: "You buy medicine at the ___.", a: "pharmacy", opts: ["bank","pharmacy","library"] }, { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] }, { q: "You wear ___ on your feet.", a: "shoes", opts: ["shoes","hat","gloves"] }, { q: "A place to borrow books is a ___.", a: "library", opts: ["library","bank","supermarket"] }, { q: "The opposite of 'expensive' is ___.", a: "cheap", opts: ["rich","cheap","big"] }, { q: "You sleep in a ___.", a: "bed", opts: ["bed","chair","table"] }, { q: "We cut paper with ___.", a: "scissors", opts: ["scissors","spoon","plate"] }, { q: "The opposite of 'fast' is ___.", a: "slow", opts: ["quick","slow","big"] }, { q: "Catch a ___ at the station.", a: "train", opts: ["train","bike","plane"] }, { q: "He flies planes. He is a ___.", a: "pilot", opts: ["driver","pilot","chef"] }, { q: "We eat soup with a ___.", a: "spoon", opts: ["fork","knife","spoon"] }, { q: "The sun rises in the ___.", a: "east", opts: ["west","east","north"] }, { q: "A ___ works in a hospital.", a: "doctor", opts: ["teacher","doctor","pilot"] }, { q: "Write with a ___.", a: "pen", opts: ["pen","cup","shoe"] }, { q: "The opposite of 'happy' is ___.", a: "sad", opts: ["angry","sad","tired"] }
       ],
-      flashcards: [{ front: "Pharmacy", back: "Farmacia" }, { front: "Bank", back: "Banco" }, { front: "Supermarket", back: "Supermercado" }, { front: "Library", back: "Biblioteca" }, { front: "Ticket", back: "Boleto" }, { front: "Train", back: "Tren" }, { front: "Bed", back: "Cama" }, { front: "Shoes", back: "Zapatos" }, { front: "Pilot", back: "Piloto" }, { front: "Doctor", back: "Médico" }, { front: "Teacher", back: "Profesor" }, { front: "Spoon", back: "Cuchara" }, { front: "Scissors", back: "Tijeras" }, { front: "East", back: "Este" }, { front: "Pen", back: "Bolígrafo" }]
+      flashcards: [
+        { front: "Pharmacy", back: "Farmacia" }, { front: "Bank", back: "Banco" }, { front: "Supermarket", back: "Supermercado" },
+        { front: "Library", back: "Biblioteca" }, { front: "Ticket", back: "Boleto" }, { front: "Train", back: "Tren" },
+        { front: "Bed", back: "Cama" }, { front: "Shoes", back: "Zapatos" }, { front: "Pilot", back: "Piloto" },
+        { front: "Doctor", back: "Médico" }, { front: "Teacher", back: "Profesor" }, { front: "Spoon", back: "Cuchara" },
+        { front: "Scissors", back: "Tijeras" }, { front: "East", back: "Este" }, { front: "Pen", back: "Bolígrafo" }
+      ]
     }
   };
 
-  let currentTopicKey = 'present_simple'; let currentUtterances = []; let currentFcIndex = 0;
   const topicGrid = document.getElementById('topicGrid');
   Object.keys(TOPICS).forEach(function(key){
     const t = TOPICS[key]; const btn = document.createElement('button');
@@ -160,26 +187,43 @@
     topicGrid.appendChild(btn);
   });
 
+  // Función para mezclar arrays (Fisher-Yates)
   function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
     return array;
   }
 
   function selectTopic(key) {
-    currentTopicKey = key; stopPodcast();
+    currentTopicKey = key; 
+    stopPodcast();
     document.querySelectorAll('.topic-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.key === key); });
     const t = TOPICS[key];
     document.getElementById('podcastTitle').textContent = '🎧 ' + t.name;
     renderScript(t.podcast);
     
+    // 1. MEZCLAR PREGUNTAS Y RESPUESTAS
     const shuffledQuestions = [...t.questions].map(q => {
-      return { ...q, opts: shuffleArray([...q.opts]) };
+      return { ...q, opts: shuffleArray([...q.opts]) }; // Clonamos y mezclamos opciones
     });
-    shuffleArray(shuffledQuestions); 
-
+    shuffleArray(shuffledQuestions); // Mezclamos el orden de las preguntas
     renderQuiz(shuffledQuestions, document.getElementById('quizContainer'));
-    currentFcIndex = 0; updateFlashcard(); document.getElementById('flashcard').classList.remove('flipped');
+    
+    // 2. MEZCLAR FLASHCARDS
+    currentFlashcards = shuffleArray([...t.flashcards]);
+    currentFcIndex = 0; 
+    updateFlashcard(); 
+    document.getElementById('flashcard').classList.remove('flipped');
   }
+
+  // Botón para volver a mezclar el quiz sin recargar
+  document.getElementById('reshuffleBtn').onclick = function() {
+    selectTopic(currentTopicKey);
+  };
 
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.addEventListener('click', function(){
@@ -228,13 +272,10 @@
     
     const checkBtn = document.createElement('button'); checkBtn.className = 'primary'; checkBtn.textContent = 'Corregir respuestas';
     checkBtn.onclick = function(){
-      let score = 0;
-      let detalleErrores = []; // Aquí guardaremos los errores
-
+      let score = 0; let detalleErrores = []; 
       questions.forEach(function(item, qIndex){
         const labels = container.querySelectorAll('.question')[qIndex].querySelectorAll('label');
         let respuestaUsuario = "No respondida";
-        
         labels.forEach(function(label){
           const input = label.querySelector('input');
           if (input.checked) respuestaUsuario = input.value;
@@ -243,29 +284,14 @@
           if (input.value === item.a) label.classList.add('correct');
           input.disabled = true;
         });
-
-        // Guardamos la info de esta pregunta
-        detalleErrores.push({
-          pregunta: item.q,
-          respuesta_correcta: item.a,
-          tu_respuesta: respuestaUsuario,
-          acertaste: respuestaUsuario === item.a
-        });
+        detalleErrores.push({ pregunta: item.q, respuesta_correcta: item.a, tu_respuesta: respuestaUsuario, acertaste: respuestaUsuario === item.a });
       });
-
-      // Guardamos el contexto global para enviárselo a la IA
       contextoQuiz = detalleErrores;
-
       const oldScore = container.querySelector('.score'); if (oldScore) oldScore.remove();
-      const scoreEl = document.createElement('div'); scoreEl.className = 'score'; 
-      scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
+      const scoreEl = document.createElement('div'); scoreEl.className = 'score'; scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
       container.appendChild(scoreEl);
       
-      // Añadimos un botón para ir al tutor
-      const tutorBtn = document.createElement('button'); 
-      tutorBtn.className = 'primary'; 
-      tutorBtn.style.marginTop = '10px'; 
-      tutorBtn.style.background = 'var(--violeta)';
+      const tutorBtn = document.createElement('button'); tutorBtn.className = 'primary'; tutorBtn.style.marginTop = '10px'; tutorBtn.style.background = 'var(--violeta)';
       tutorBtn.textContent = '💬 Pedir al tutor que me explique los errores';
       tutorBtn.onclick = function() {
         document.querySelector('.tab[data-tab="ai"]').click();
@@ -278,14 +304,16 @@
   }
 
   function updateFlashcard() {
-    const cards = TOPICS[currentTopicKey].flashcards; if (!cards || cards.length === 0) return;
-    const card = cards[currentFcIndex];
-    document.getElementById('fcFront').textContent = card.front; document.getElementById('fcBack').textContent = card.back;
+    if (!currentFlashcards || currentFlashcards.length === 0) return;
+    const card = currentFlashcards[currentFcIndex];
+    document.getElementById('fcFront').textContent = card.front; 
+    document.getElementById('fcBack').textContent = card.back;
+    document.getElementById('fcCounter').textContent = (currentFcIndex + 1) + ' / ' + currentFlashcards.length;
     document.getElementById('flashcard').classList.remove('flipped');
   }
   document.getElementById('flashcardBox').onclick = () => { document.getElementById('flashcard').classList.toggle('flipped'); };
-  document.getElementById('nextFc').onclick = () => { const cards = TOPICS[currentTopicKey].flashcards; currentFcIndex = (currentFcIndex + 1) % cards.length; updateFlashcard(); };
-  document.getElementById('prevFc').onclick = () => { const cards = TOPICS[currentTopicKey].flashcards; currentFcIndex = (currentFcIndex - 1 + cards.length) % cards.length; updateFlashcard(); };
+  document.getElementById('nextFc').onclick = () => { currentFcIndex = (currentFcIndex + 1) % currentFlashcards.length; updateFlashcard(); };
+  document.getElementById('prevFc').onclick = () => { currentFcIndex = (currentFcIndex - 1 + currentFlashcards.length) % currentFlashcards.length; updateFlashcard(); };
 
   document.getElementById('aiGenerateBtn').onclick = async function(){
     const topic = document.getElementById('aiTopic').value.trim(); if (!topic) return alert('Escribe un tema');
@@ -304,18 +332,14 @@
     const replyBox = document.getElementById('chatReply'); const btn = document.getElementById('chatBtn');
     replyBox.style.display = 'block'; replyBox.textContent = '⏳ Pensando...'; btn.disabled = true;
     try {
-      // ENVIAMOS EL MENSAJE Y EL CONTEXTO DEL QUIZ AL BACKEND
-      const res = await fetch('/api/chat', { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ message: msg, context: contextoQuiz }) 
-      });
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: contextoQuiz }) });
       const data = await res.json(); if (data.error) throw new Error(data.error);
       replyBox.textContent = data.reply;
     } catch (err) { replyBox.textContent = 'Error: ' + err.message; }
     finally { btn.disabled = false; }
   };
 
+  // INICIAR LA APP (Llama a la función que mezcla todo al cargar)
   selectTopic('present_simple');
 </script>
 </body>
