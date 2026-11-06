@@ -1,37 +1,42 @@
-const CACHE_NAME = 'studycast-v3';
+const CACHE_NAME = 'studycast-v5'; // 👈 Versión actualizada para borrar la memoria vieja
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json'
 ];
 
-// Instalar el Service Worker y guardar en caché
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+// Instalar y guardar archivos en caché
+self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Fuerza a la nueva versión a activarse de inmediato
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
   );
-  self.skipWaiting();
 });
 
-// Activar y limpiar cachés viejas
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
+// Activar y borrar las memorias (cachés) viejas
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('Borrando caché antigua:', cache);
+            return caches.delete(cache);
+          }
         })
       );
     })
   );
-  self.clients.claim();
+  self.clients.claim(); // Toma el control de la app inmediatamente
 });
 
-// Responder desde la caché o desde la red
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
+// Interceptar peticiones
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
     })
   );
 });
