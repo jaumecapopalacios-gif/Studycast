@@ -11,10 +11,18 @@
     --azul: #1f4e79; --violeta: #6a4c93; --fondo: #f7f9fb; --tarjeta: #ffffff;
     --texto: #222222; --borde: #cfd8dc; --gris: #f4f6f8; --verde: #2e7d32; --rojo: #b71c1c;
   }
-  body.dark { --fondo: #121212; --tarjeta: #1e1e1e; --texto: #e0e0e0; --borde: #333333; --gris: #2d2d2d; --azul: #4db8ff; }
+  /* Colores modo oscuro idénticos a ChatGPT */
+  body.dark { 
+    --fondo: #212121; 
+    --tarjeta: #2f2f2f; 
+    --texto: #ececec; 
+    --borde: #444444; 
+    --gris: #171717; 
+    --azul: #4db8ff; 
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; padding: 14px; font-family: system-ui, sans-serif; background: var(--fondo); color: var(--texto); line-height: 1.5; }
-  .container { max-width: 820px; margin: 0 auto; background: var(--tarjeta); border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  body { margin: 0; padding: 14px; font-family: system-ui, -apple-system, sans-serif; background: var(--fondo); color: var(--texto); line-height: 1.5; }
+  .container { max-width: 820px; margin: 0 auto; background: var(--fondo); border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
   header { text-align: center; margin-bottom: 20px; position: relative; }
   h1 { margin: 0; font-size: 26px; color: var(--azul); }
   .subtitle { color: #888; font-size: 14px; margin: 4px 0 0; }
@@ -22,55 +30,73 @@
   .icon-btn { background: var(--gris); border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; color: var(--texto); }
   
   .topic-input-box { display: flex; gap: 10px; margin-bottom: 20px; }
-  .topic-input-box input { flex: 1; padding: 12px; border: 2px solid var(--borde); border-radius: 10px; font-size: 16px; background: var(--tarjeta); color: var(--texto); }
+  .topic-input-box input { flex: 1; padding: 12px; border: 1px solid var(--borde); border-radius: 10px; font-size: 16px; background: var(--tarjeta); color: var(--texto); }
   
-  .tabs { display: flex; gap: 6px; margin: 18px 0 12px; border-bottom: 2px solid var(--borde); flex-wrap: wrap; }
-  .tab { background: none; border: none; padding: 10px 14px; cursor: pointer; font-size: 15px; font-weight: 600; color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px; }
-  .tab.active { color: var(--azul); border-bottom-color: var(--azul); }
+  .tabs { display: flex; gap: 6px; margin: 18px 0 12px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+  .tab { background: none; border: none; padding: 10px 14px; cursor: pointer; font-size: 15px; font-weight: 600; color: #888; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab.active { color: var(--texto); border-bottom-color: var(--texto); }
   .panel { display: none; }
   .panel.active { display: block; animation: fade .3s; }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
   
-  /* PODCAST */
+  /* PODCAST Y QUIZ */
   .podcast-player { background: linear-gradient(135deg,var(--violeta),var(--azul)); color: #fff; border-radius: 14px; padding: 20px; margin-bottom: 14px; }
   .script-line { background: var(--tarjeta); border-left: 4px solid var(--violeta); border-radius: 10px; padding: 10px 12px; margin: 8px 0; font-size: 14px; }
+  .question { background: var(--gris); border-radius: 12px; padding: 16px; margin: 12px 0; border: 1px solid var(--borde); }
+  .options label { display: block; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 12px; margin: 6px 0; cursor: pointer; font-size: 15px; color: var(--texto); }
+  .options label.correct { background: #1b5e20; border-color: var(--verde); color: white; }
+  .options label.wrong { background: #b71c1c; border-color: var(--rojo); color: white; }
+  .score { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 14px; margin-top: 14px; font-weight: bold; text-align: center; color: var(--texto); }
   
-  /* QUIZ */
-  .question { background: var(--gris); border-radius: 12px; padding: 16px; margin: 12px 0; }
-  .options label { display: block; background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 10px; padding: 10px 12px; margin: 6px 0; cursor: pointer; font-size: 15px; color: var(--texto); }
-  .options label.correct { background: #e8f5e9; border-color: var(--verde); color: #1b5e20; }
-  .options label.wrong { background: #ffebee; border-color: var(--rojo); color: #b71c1c; }
-  .score { background: #fff3e0; border: 1.5px solid #ffb74d; border-radius: 12px; padding: 14px; margin-top: 14px; font-weight: bold; text-align: center; color: #e65100; }
-  
-  /* CHAT */
-  .chat-container { background: var(--gris); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; height: 500px; }
+  /* CHAT ESTILO CHATGPT */
+  .chat-container { background: var(--fondo); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; height: 550px; }
   .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--borde); }
-  .chat-header h3 { margin: 0; font-size: 16px; color: var(--azul); }
+  .chat-header h3 { margin: 0; font-size: 16px; color: var(--texto); }
   .clear-btn { background: none; border: 1px solid var(--rojo); color: var(--rojo); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
-  .clear-btn:hover { background: var(--rojo); color: white; }
   
-  #chatMessages { flex: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; padding-right: 5px; }
-  .msg { padding: 12px 16px; border-radius: 16px; max-width: 85%; font-size: 15px; line-height: 1.5; white-space: pre-wrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-  .msg.user { background: var(--azul); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-  .msg.ai { background: var(--tarjeta); border: 1px solid var(--borde); color: var(--texto); align-self: flex-start; border-bottom-left-radius: 4px; }
+  #chatMessages { flex: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 20px; padding-right: 5px; }
   
-  .chat-input-area { display: flex; gap: 8px; }
-  .chat-input-area input { flex: 1; padding: 14px; border: 1.5px solid var(--borde); border-radius: 12px; font-size: 15px; background: var(--tarjeta); color: var(--texto); outline: none; }
-  .chat-input-area input:focus { border-color: var(--azul); }
-  .mic-btn { background: var(--rojo); color: white; border: none; border-radius: 12px; width: 52px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .mic-btn.listening { animation: pulse 1s infinite; background: #ff5252; }
+  /* Mensaje del Usuario (Burbuja) */
+  .msg-user { 
+    background: var(--tarjeta); 
+    color: var(--texto); 
+    padding: 10px 16px; 
+    border-radius: 20px; 
+    align-self: flex-end; 
+    max-width: 80%; 
+    font-size: 15px; 
+    line-height: 1.5;
+  }
+  
+  /* Mensaje de la IA (Sin burbuja, estilo limpio) */
+  .msg-ai-wrapper { align-self: flex-start; width: 100%; max-width: 100%; }
+  .msg-ai-text { font-size: 15px; line-height: 1.6; white-space: pre-wrap; margin-bottom: 8px; color: var(--texto); }
+  
+  /* Botones debajo de la IA */
+  .msg-actions { display: flex; gap: 12px; opacity: 0.7; }
+  .action-icon { 
+    background: none; border: none; cursor: pointer; color: var(--texto); 
+    font-size: 16px; padding: 4px; display: flex; align-items: center; justify-content: center; 
+    border-radius: 4px; transition: background 0.2s;
+  }
+  .action-icon:hover { background: var(--tarjeta); }
+  
+  .chat-input-area { display: flex; gap: 8px; background: var(--tarjeta); padding: 8px; border-radius: 24px; border: 1px solid var(--borde); }
+  .chat-input-area input { flex: 1; padding: 10px 14px; border: none; font-size: 15px; background: transparent; color: var(--texto); outline: none; }
+  .mic-btn { background: none; color: var(--texto); border: none; border-radius: 50%; width: 40px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .mic-btn.listening { color: var(--rojo); animation: pulse 1s infinite; }
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
   
-  button.primary { background: var(--azul); color: #fff; border: none; border-radius: 12px; padding: 12px 20px; font-size: 15px; cursor: pointer; font-weight: 600; }
-  button.primary:disabled { background: #b0bec5; cursor: not-allowed; }
+  button.primary { background: var(--texto); color: var(--fondo); border: none; border-radius: 20px; padding: 10px 20px; font-size: 15px; cursor: pointer; font-weight: 600; }
+  button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
-<body>
+<body class="dark"> <!-- Inicia en oscuro por defecto -->
 <div class="container">
   <header>
-    <div class="top-btns"><button class="icon-btn" id="themeBtn">🌙</button></div>
+    <div class="top-btns"><button class="icon-btn" id="themeBtn">☀️</button></div>
     <h1>🎓 StudyCast IA</h1>
-    <p class="subtitle">Genera clases, podcasts y exámenes al instante</p>
+    <p class="subtitle">Tu tutor personal</p>
   </header>
 
   <div class="topic-input-box">
@@ -78,42 +104,39 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="podcast">🎙️ Podcast IA</button>
-    <button class="tab" data-tab="quiz">📝 Examen IA</button>
-    <button class="tab" data-tab="ai">💬 Hablar con el Tutor</button>
+    <button class="tab active" data-tab="podcast">🎙️ Podcast</button>
+    <button class="tab" data-tab="quiz">📝 Examen</button>
+    <button class="tab" data-tab="ai">💬 Tutor IA</button>
   </div>
 
-  <!-- PODCAST IA -->
   <div class="panel active" id="panel-podcast">
     <div class="podcast-player">
       <p style="margin-top:0;">Genera un podcast sobre el tema escrito arriba.</p>
-      <button class="primary" id="generatePodcastBtn" style="background:#fff; color:var(--violeta);">✨ Crear Podcast con IA</button>
+      <button class="primary" id="generatePodcastBtn" style="background:#fff; color:var(--violeta);">✨ Crear Podcast</button>
     </div>
     <div id="podcastLoading" style="display:none; text-align:center; margin:20px;">⏳ Escribiendo guion...</div>
     <div id="scriptContainer"></div>
   </div>
 
-  <!-- EXAMEN IA -->
   <div class="panel" id="panel-quiz">
     <div style="text-align:center; margin-bottom:15px;">
-      <button class="primary" id="generateQuizBtn">✨ Generar 5 Preguntas de este tema</button>
+      <button class="primary" id="generateQuizBtn">✨ Generar 5 Preguntas</button>
     </div>
     <div id="quizLoading" style="display:none; text-align:center; margin:20px;">⏳ Creando examen...</div>
     <div id="quizContainer"></div>
   </div>
 
-  <!-- CHAT IA -->
   <div class="panel" id="panel-ai">
     <div class="chat-container">
       <div class="chat-header">
-        <h3>💬 Tutor con Memoria</h3>
-        <button class="clear-btn" id="clearChatBtn">🗑️ Borrar Chat</button>
+        <h3>💬 Tutor</h3>
+        <button class="clear-btn" id="clearChatBtn">🗑️ Borrar</button>
       </div>
       <div id="chatMessages"></div>
       <div class="chat-input-area">
-        <input type="text" id="chatInput" placeholder="Escribe o usa el micrófono...">
-        <button class="mic-btn" id="micBtn" title="Hablar por micrófono">🎤</button>
-        <button class="primary" id="chatBtn">Enviar</button>
+        <button class="mic-btn" id="micBtn" title="Hablar">🎤</button>
+        <input type="text" id="chatInput" placeholder="Escribe un mensaje...">
+        <button class="primary" id="chatBtn" style="padding: 8px 12px; border-radius: 12px;">↑</button>
       </div>
     </div>
   </div>
@@ -122,14 +145,18 @@
 <script>
   let contextoQuiz = null; 
   let isListening = false;
-  
-  // Cargar memoria guardada
   let chatHistory = JSON.parse(localStorage.getItem('studycast_history')) || [];
+  let lastUserMessage = ""; // Para el botón de regenerar
 
-  // Modo Oscuro
+  // Manejo del Tema (Oscuro/Claro)
   const themeBtn = document.getElementById('themeBtn');
-  if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark'); themeBtn.textContent = '☀️'; }
-  themeBtn.addEventListener('click', () => { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); themeBtn.textContent = isDark ? '☀️' : '🌙'; });
+  if (localStorage.getItem('theme') === 'light') { document.body.classList.remove('dark'); themeBtn.textContent = '🌙'; }
+  themeBtn.addEventListener('click', () => { 
+    document.body.classList.toggle('dark'); 
+    const isDark = document.body.classList.contains('dark'); 
+    localStorage.setItem('theme', isDark ? 'dark' : 'light'); 
+    themeBtn.textContent = isDark ? '☀️' : '🌙'; 
+  });
 
   // Navegación
   document.querySelectorAll('.tab').forEach(function(tab){
@@ -141,75 +168,49 @@
     });
   });
 
-  // ================== 1. PODCAST ==================
+  // ================== PODCAST Y QUIZ (Igual que antes) ==================
   document.getElementById('generatePodcastBtn').onclick = async function() {
     const topic = document.getElementById('globalTopic').value.trim();
     if(!topic) return alert('Escribe un tema arriba primero');
-    
     document.getElementById('podcastLoading').style.display = 'block';
     document.getElementById('scriptContainer').innerHTML = '';
-    
     try {
-      const res = await fetch('/api/podcast', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: topic })
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      renderScript(data.script);
-    } catch(err) { alert('Error: ' + err.message); }
-    finally { document.getElementById('podcastLoading').style.display = 'none'; }
+      const res = await fetch('/api/podcast', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: topic }) });
+      const data = await res.json(); if (data.error) throw new Error(data.error); renderScript(data.script);
+    } catch(err) { alert('Error: ' + err.message); } finally { document.getElementById('podcastLoading').style.display = 'none'; }
   };
 
   function renderScript(lines) {
-    const container = document.getElementById('scriptContainer');
-    container.innerHTML = '';
+    const container = document.getElementById('scriptContainer'); container.innerHTML = '';
     lines.forEach(function(line, i) {
       const div = document.createElement('div'); div.className = 'script-line';
       div.innerHTML = '<span style="color:var(--violeta);font-weight:bold;font-size:12px;display:block;">' + line.who + '</span>' + line.text;
-      div.onclick = () => playFrom(lines, i); 
-      container.appendChild(div);
+      div.onclick = () => playFrom(lines, i); container.appendChild(div);
     });
-    const playBtn = document.createElement('button');
-    playBtn.className = 'primary'; playBtn.textContent = '▶ Escuchar Podcast';
-    playBtn.style.marginTop = '15px'; playBtn.onclick = () => playFrom(lines, 0);
-    container.appendChild(playBtn);
+    const playBtn = document.createElement('button'); playBtn.className = 'primary'; playBtn.textContent = '▶ Escuchar Podcast'; playBtn.style.marginTop = '15px'; playBtn.onclick = () => playFrom(lines, 0); container.appendChild(playBtn);
   }
 
   function playFrom(lines, startIndex) {
     if (!('speechSynthesis' in window)) return alert('Tu navegador no soporta voz.');
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     for (let i = startIndex; i < lines.length; i++) {
-      const u = new SpeechSynthesisUtterance(lines[i].text); 
-      u.lang = 'en-GB';
+      const u = new SpeechSynthesisUtterance(lines[i].text); u.lang = 'en-GB';
       if (lines[i].who === 'Host') { u.pitch = 1.1; u.rate = 1.0; } else { u.pitch = 0.9; u.rate = 0.95; }
       speechSynthesis.speak(u);
     }
   }
 
-  // ================== 2. EXAMEN ==================
   document.getElementById('generateQuizBtn').onclick = async function() {
-    const topic = document.getElementById('globalTopic').value.trim();
-    if(!topic) return alert('Escribe un tema arriba primero');
-    document.getElementById('quizLoading').style.display = 'block';
-    document.getElementById('quizContainer').innerHTML = '';
-    
+    const topic = document.getElementById('globalTopic').value.trim(); if(!topic) return alert('Escribe un tema');
+    document.getElementById('quizLoading').style.display = 'block'; document.getElementById('quizContainer').innerHTML = '';
     try {
-      const res = await fetch('/api/quiz', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: topic })
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      renderQuiz(data.questions);
-    } catch(err) { alert('Error: ' + err.message); }
-    finally { document.getElementById('quizLoading').style.display = 'none'; }
+      const res = await fetch('/api/quiz', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: topic }) });
+      const data = await res.json(); if (data.error) throw new Error(data.error); renderQuiz(data.questions);
+    } catch(err) { alert('Error: ' + err.message); } finally { document.getElementById('quizLoading').style.display = 'none'; }
   };
 
   function renderQuiz(questions) {
-    const container = document.getElementById('quizContainer');
-    const suffix = Math.random().toString(36).slice(2);
-    
+    const container = document.getElementById('quizContainer'); const suffix = Math.random().toString(36).slice(2);
     questions.forEach(function(item, qIndex){
       const box = document.createElement('div'); box.className = 'question';
       box.innerHTML = '<p style="margin:0 0 10px;font-weight:bold;">' + (qIndex + 1) + '. ' + item.q + '</p>';
@@ -222,7 +223,7 @@
       box.appendChild(opts); container.appendChild(box);
     });
     
-    const checkBtn = document.createElement('button'); checkBtn.className = 'primary'; checkBtn.textContent = 'Corregir respuestas';
+    const checkBtn = document.createElement('button'); checkBtn.className = 'primary'; checkBtn.textContent = 'Corregir respuestas'; checkBtn.style.width = '100%'; checkBtn.style.marginTop = '15px';
     checkBtn.onclick = function(){
       let score = 0; let detalleErrores = []; 
       questions.forEach(function(item, qIndex){
@@ -239,45 +240,77 @@
         detalleErrores.push({ pregunta: item.q, respuesta_correcta: item.a, tu_respuesta: respuestaUsuario, acertaste: respuestaUsuario === item.a });
       });
       contextoQuiz = detalleErrores;
-      
-      const scoreEl = document.createElement('div'); scoreEl.className = 'score'; scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
-      container.appendChild(scoreEl);
-      
-      const tutorBtn = document.createElement('button'); tutorBtn.className = 'primary'; tutorBtn.style.marginTop = '10px'; tutorBtn.style.background = 'var(--violeta)';
-      tutorBtn.textContent = '💬 Pedir al tutor que me explique los errores';
-      tutorBtn.onclick = function() {
-        document.querySelector('.tab[data-tab="ai"]').click();
-        document.getElementById('chatInput').value = "Explícame los errores de mi examen.";
-        document.getElementById('chatBtn').click();
-      };
-      container.appendChild(tutorBtn);
+      const scoreEl = document.createElement('div'); scoreEl.className = 'score'; scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length; container.appendChild(scoreEl);
     };
     container.appendChild(checkBtn);
   }
 
-  // ================== 3. CHAT CON MEMORIA ==================
+  // ================== CHAT ESTILO CHATGPT ==================
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatBtn = document.getElementById('chatBtn');
   const micBtn = document.getElementById('micBtn');
 
-  function addMessageToScreen(text, sender) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + sender;
-    div.textContent = text;
-    chatMessages.appendChild(div);
+  // Función para dibujar un mensaje
+  function appendMessage(text, sender, isThinking = false) {
+    const wrapper = document.createElement('div');
+    
+    if (sender === 'user') {
+      wrapper.className = 'msg-user';
+      wrapper.textContent = text;
+    } else {
+      wrapper.className = 'msg-ai-wrapper';
+      
+      const txtDiv = document.createElement('div');
+      txtDiv.className = 'msg-ai-text';
+      txtDiv.textContent = text;
+      wrapper.appendChild(txtDiv);
+
+      if (!isThinking) {
+        // Añadir los iconos debajo (Copiar, Escuchar, Regenerar)
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        
+        // Botón Copiar
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'action-icon'; copyBtn.innerHTML = '📋'; copyBtn.title = "Copiar texto";
+        copyBtn.onclick = () => { navigator.clipboard.writeText(text); copyBtn.innerHTML = '✅'; setTimeout(()=>copyBtn.innerHTML='📋', 2000); };
+        
+        // Botón Escuchar (Audio)
+        const speakBtn = document.createElement('button');
+        speakBtn.className = 'action-icon'; speakBtn.innerHTML = '🔊'; speakBtn.title = "Leer en voz alta";
+        speakBtn.onclick = () => {
+          if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-GB'; // Pronunciación en inglés
+            speechSynthesis.speak(u);
+          }
+        };
+
+        // Botón Regenerar
+        const regenBtn = document.createElement('button');
+        regenBtn.className = 'action-icon'; regenBtn.innerHTML = '🔄'; regenBtn.title = "Regenerar respuesta";
+        regenBtn.onclick = () => { chatInput.value = lastUserMessage; chatBtn.click(); };
+
+        actions.appendChild(copyBtn);
+        actions.appendChild(speakBtn);
+        actions.appendChild(regenBtn);
+        wrapper.appendChild(actions);
+      }
+    }
+    
+    chatMessages.appendChild(wrapper);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    return div;
+    return wrapper;
   }
 
   function loadChatHistory() {
     chatMessages.innerHTML = ''; 
     if (chatHistory.length === 0) {
-      addMessageToScreen("¡Hola! Soy tu tutor. Puedes pedirme discursos, resúmenes o gramática. Recuerdo todo lo que hablamos. 🎤", 'ai');
+      appendMessage("¡Hola! Soy tu tutor personal. Recuerdo todo lo que hablamos. ¿Qué quieres estudiar hoy?", 'ai');
     } else {
-      chatHistory.forEach(msg => {
-        addMessageToScreen(msg.content, msg.role === 'user' ? 'user' : 'ai');
-      });
+      chatHistory.forEach(msg => appendMessage(msg.content, msg.role === 'user' ? 'user' : 'ai'));
     }
   }
 
@@ -285,88 +318,63 @@
     const msg = chatInput.value.trim(); 
     if (!msg) return;
     
-    addMessageToScreen(msg, 'user');
+    lastUserMessage = msg;
+    appendMessage(msg, 'user');
     chatInput.value = '';
     chatBtn.disabled = true;
     
     chatHistory.push({ role: 'user', content: msg });
     localStorage.setItem('studycast_history', JSON.stringify(chatHistory)); 
 
-    const aiMsgDiv = addMessageToScreen('⏳ Pensando...', 'ai');
+    // El "Pensando..." temporal
+    const thinkingDiv = appendMessage('Pensando...', 'ai', true);
     
     try {
       const res = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: msg, 
-          context: contextoQuiz,
-          history: chatHistory.slice(0, -1) 
-        })
+        body: JSON.stringify({ message: msg, context: contextoQuiz, history: chatHistory.slice(0, -1) })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       
-      aiMsgDiv.textContent = data.reply; // Solo muestra texto, NO lo lee
+      // Borrar el "Pensando..." y poner la respuesta real
+      chatMessages.removeChild(thinkingDiv);
+      appendMessage(data.reply, 'ai');
       
       chatHistory.push({ role: 'assistant', content: data.reply });
       localStorage.setItem('studycast_history', JSON.stringify(chatHistory));
       
     } catch (err) { 
-      aiMsgDiv.textContent = 'Error: ' + err.message; 
+      chatMessages.removeChild(thinkingDiv);
+      appendMessage('Error: ' + err.message, 'ai'); 
     } finally { 
       chatBtn.disabled = false; 
     }
   };
 
-  chatInput.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') chatBtn.click();
-  });
+  chatInput.addEventListener('keypress', function (e) { if (e.key === 'Enter') chatBtn.click(); });
 
   document.getElementById('clearChatBtn').onclick = function() {
-    if(confirm('¿Seguro que quieres borrar la conversación y empezar de cero?')) {
+    if(confirm('¿Borrar conversación?')) {
       chatHistory = [];
       localStorage.removeItem('studycast_history');
       loadChatHistory();
     }
   };
 
-  // ================== 4. MICRÓFONO ==================
+  // Micrófono
   if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'es-ES'; 
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    recognition.lang = 'es-ES'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+    micBtn.onclick = function() { if (isListening) { recognition.stop(); return; } recognition.start(); };
+    recognition.onstart = function() { isListening = true; micBtn.classList.add('listening'); chatInput.placeholder = "Escuchando..."; };
+    recognition.onresult = function(event) { chatInput.value = event.results[0][0].transcript; };
+    recognition.onend = function() { isListening = false; micBtn.classList.remove('listening'); chatInput.placeholder = "Escribe un mensaje..."; if (chatInput.value.trim() !== "") chatBtn.click(); };
+  } else { micBtn.style.display = 'none'; }
 
-    micBtn.onclick = function() {
-      if (isListening) { recognition.stop(); return; }
-      recognition.start();
-    };
-
-    recognition.onstart = function() {
-      isListening = true;
-      micBtn.classList.add('listening');
-      chatInput.placeholder = "Escuchando...";
-    };
-
-    recognition.onresult = function(event) {
-      chatInput.value = event.results[0][0].transcript;
-    };
-
-    recognition.onend = function() {
-      isListening = false;
-      micBtn.classList.remove('listening');
-      chatInput.placeholder = "Escribe o usa el micrófono...";
-      if (chatInput.value.trim() !== "") chatBtn.click();
-    };
-  } else {
-    micBtn.style.display = 'none'; 
-  }
-
-  // Iniciar
   loadChatHistory();
 
-  // PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
   }
