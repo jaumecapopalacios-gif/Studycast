@@ -45,7 +45,7 @@
   .flashcard-front { background: var(--azul); color: #fff; }
   .flashcard-back { background: var(--violeta); color: #fff; transform: rotateY(180deg); }
   
-  .ai-generator-box { background: var(--gris); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px dashed var(--borde); }
+  .ai-generator-box { background: var(--gris); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px dashed var(--borde); }
   .ai-generator-box input { width: 100%; max-width: 400px; padding: 10px; border: 1.5px solid var(--borde); border-radius: 8px; margin-bottom: 10px; background: var(--tarjeta); color: var(--texto); }
   
   .question { background: var(--gris); border-radius: 12px; padding: 16px; margin: 12px 0; border: 1px solid var(--borde); }
@@ -91,10 +91,12 @@
 
   <div class="topic-grid" id="topicGrid"></div>
 
+  <!-- PESTAÑAS ACTUALIZADAS -->
   <div class="tabs">
     <button class="tab active" data-tab="podcast">🎙️ Podcast</button>
     <button class="tab" data-tab="quiz">📝 Quiz</button>
     <button class="tab" data-tab="flashcards">🃏 Flashcards</button>
+    <button class="tab" data-tab="ai-simulacro">✨ Simulacro IA</button>
     <button class="tab" data-tab="ai">🤖 Tutor IA</button>
   </div>
 
@@ -110,17 +112,10 @@
     <div id="scriptContainer"></div>
   </div>
 
+  <!-- PESTAÑA QUIZ (Solo las 15 preguntas estáticas) -->
   <div class="panel" id="panel-quiz">
     <button class="shuffle-btn" id="reshuffleQuizBtn">🔄 Mezclar Preguntas</button>
     <div style="clear:both;"></div>
-    <div class="ai-generator-box">
-      <h3 style="margin-top:0; color:var(--azul);">✨ Simulacro Extra con IA</h3>
-      <p style="font-size:13px; color:#888;">Escribe cualquier tema para generar 5 preguntas nuevas.</p>
-      <input type="text" id="aiTopicInput" placeholder="Ej: Phrasal Verbs, Viajes...">
-      <br>
-      <button class="primary" id="aiGenerateBtn">Generar Simulacro</button>
-      <div id="aiLoading" style="display:none; margin-top:10px;">⏳ Creando examen...</div>
-    </div>
     <div id="quizContainer"></div>
   </div>
 
@@ -135,6 +130,20 @@
     <div style="display:flex;gap:10px;justify-content:center;"><button class="primary" id="prevFc">⬅ Anterior</button><button class="primary" id="nextFc">Siguiente ➡</button></div>
   </div>
 
+  <!-- NUEVA PESTAÑA: SIMULACRO IA -->
+  <div class="panel" id="panel-ai-simulacro">
+    <div class="ai-generator-box">
+      <h3 style="margin-top:0; color:var(--azul);">✨ Generador de Exámenes</h3>
+      <p style="font-size:13px; color:#888;">Escribe cualquier tema para que la IA te haga un simulacro de 5 preguntas.</p>
+      <input type="text" id="aiTopicInput" placeholder="Ej: Phrasal Verbs, Viajes, Energías Renovables...">
+      <br>
+      <button class="primary" id="aiGenerateBtn">Crear Simulacro</button>
+      <div id="aiLoading" style="display:none; margin-top:10px;">⏳ Creando examen...</div>
+    </div>
+    <div id="aiQuizContainer"></div>
+  </div>
+
+  <!-- PESTAÑA CHAT -->
   <div class="panel" id="panel-ai">
     <div class="chat-container">
       <div class="chat-header">
@@ -326,12 +335,13 @@
     container.appendChild(checkBtn);
   }
 
+  // GENERADOR IA (Pestaña Simulacro)
   document.getElementById('aiGenerateBtn').onclick = async function() {
     const topic = document.getElementById('aiTopicInput').value.trim();
     if(!topic) return alert('Escribe un tema para generar el examen');
     
     const loading = document.getElementById('aiLoading'); 
-    const container = document.getElementById('quizContainer'); 
+    const container = document.getElementById('aiQuizContainer'); 
     const btn = document.getElementById('aiGenerateBtn');
     
     loading.style.display = 'block'; container.innerHTML = ''; btn.disabled = true;
