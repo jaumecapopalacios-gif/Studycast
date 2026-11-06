@@ -31,13 +31,9 @@
   .panel.active { display: block; animation: fade .3s; }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
   
-  /* PODCAST */
   .podcast-player { background: linear-gradient(135deg,var(--violeta),var(--azul)); color: #fff; border-radius: 14px; padding: 20px; margin-bottom: 14px; }
-  .podcast-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-  .podcast-controls button { background: rgba(255,255,255,.2); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 15px; cursor: pointer; font-weight: 600; }
   .script-line { background: var(--tarjeta); border-left: 4px solid var(--violeta); border-radius: 10px; padding: 10px 12px; margin: 8px 0; font-size: 14px; }
   
-  /* QUIZ */
   .question { background: var(--gris); border-radius: 12px; padding: 16px; margin: 12px 0; }
   .options label { display: block; background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 10px; padding: 10px 12px; margin: 6px 0; cursor: pointer; font-size: 15px; color: var(--texto); }
   .options label.correct { background: #e8f5e9; border-color: var(--verde); color: #1b5e20; }
@@ -45,18 +41,20 @@
   .score { background: #fff3e0; border: 1.5px solid #ffb74d; border-radius: 12px; padding: 14px; margin-top: 14px; font-weight: bold; text-align: center; color: #e65100; }
   
   /* CHAT */
-  .chat-container { background: var(--gris); border-radius: 14px; padding: 16px; }
-  #chatMessages { max-height: 400px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-  .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.4; white-space: pre-wrap; }
-  .msg.user { background: var(--azul); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-  .msg.ai { background: var(--tarjeta); border: 1px solid var(--borde); color: var(--texto); align-self: flex-start; border-bottom-left-radius: 2px; }
+  .chat-container { background: var(--gris); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; height: 500px; }
+  #chatMessages { flex: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; padding-right: 5px; }
+  .msg { padding: 12px 16px; border-radius: 16px; max-width: 85%; font-size: 15px; line-height: 1.5; white-space: pre-wrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .msg.user { background: var(--azul); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .msg.ai { background: var(--tarjeta); border: 1px solid var(--borde); color: var(--texto); align-self: flex-start; border-bottom-left-radius: 4px; }
+  
   .chat-input-area { display: flex; gap: 8px; }
-  .chat-input-area input { flex: 1; padding: 12px; border: 1.5px solid var(--borde); border-radius: 10px; font-size: 15px; background: var(--tarjeta); color: var(--texto); }
-  .mic-btn { background: var(--rojo); color: white; border: none; border-radius: 10px; width: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .chat-input-area input { flex: 1; padding: 14px; border: 1.5px solid var(--borde); border-radius: 12px; font-size: 15px; background: var(--tarjeta); color: var(--texto); outline: none; }
+  .chat-input-area input:focus { border-color: var(--azul); }
+  .mic-btn { background: var(--rojo); color: white; border: none; border-radius: 12px; width: 52px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .mic-btn.listening { animation: pulse 1s infinite; background: #ff5252; }
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
   
-  button.primary { background: var(--azul); color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-size: 15px; cursor: pointer; font-weight: 600; }
+  button.primary { background: var(--azul); color: #fff; border: none; border-radius: 12px; padding: 12px 20px; font-size: 15px; cursor: pointer; font-weight: 600; }
   button.primary:disabled { background: #b0bec5; cursor: not-allowed; }
 </style>
 </head>
@@ -115,6 +113,7 @@
 <script>
   let contextoQuiz = null; 
   let isListening = false;
+  let chatHistory = []; // AQUÍ GUARDAMOS LA MEMORIA DE LA CONVERSACIÓN
 
   // Modo Oscuro
   const themeBtn = document.getElementById('themeBtn');
@@ -161,7 +160,6 @@
       div.onclick = () => playFrom(lines, i); 
       container.appendChild(div);
     });
-    // Botón para escuchar todo
     const playBtn = document.createElement('button');
     playBtn.className = 'primary'; playBtn.textContent = '▶ Escuchar Podcast';
     playBtn.style.marginTop = '15px';
@@ -251,7 +249,7 @@
     container.appendChild(checkBtn);
   }
 
-  // ================== 3. CHAT SIN VOZ ==================
+  // ================== 3. CHAT CON MEMORIA ==================
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatBtn = document.getElementById('chatBtn');
@@ -262,6 +260,7 @@
     div.className = 'msg ' + sender;
     div.textContent = text;
     chatMessages.appendChild(div);
+    // Auto-scroll hacia abajo
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return div;
   }
@@ -270,22 +269,34 @@
     const msg = chatInput.value.trim(); 
     if (!msg) return;
     
+    // 1. Mostrar mensaje del usuario en pantalla
     addMessage(msg, 'user');
     chatInput.value = '';
     chatBtn.disabled = true;
     
+    // 2. Guardar en el historial de memoria
+    chatHistory.push({ role: 'user', content: msg });
+
+    // 3. Mostrar "pensando"
     const aiMsgDiv = addMessage('⏳ Pensando...', 'ai');
     
     try {
       const res = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, context: contextoQuiz })
+        body: JSON.stringify({ 
+          message: msg, 
+          context: contextoQuiz,
+          history: chatHistory.slice(0, -1) // Enviamos todo el historial MENOS el último mensaje (que ya va en 'message')
+        })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       
-      // AQUI YA NO SE EJECUTA EL SPEAKTEXT
+      // 4. Mostrar respuesta de la IA
       aiMsgDiv.textContent = data.reply;
+      
+      // 5. Guardar respuesta de la IA en el historial para que la recuerde
+      chatHistory.push({ role: 'assistant', content: data.reply });
       
     } catch (err) { 
       aiMsgDiv.textContent = 'Error: ' + err.message; 
@@ -294,7 +305,6 @@
     }
   };
 
-  // Enter para enviar
   chatInput.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') chatBtn.click();
   });
@@ -308,10 +318,7 @@
     recognition.maxAlternatives = 1;
 
     micBtn.onclick = function() {
-      if (isListening) {
-        recognition.stop();
-        return;
-      }
+      if (isListening) { recognition.stop(); return; }
       recognition.start();
     };
 
@@ -322,32 +329,22 @@
     };
 
     recognition.onresult = function(event) {
-      const transcript = event.results[0][0].transcript;
-      chatInput.value = transcript;
+      chatInput.value = event.results[0][0].transcript;
     };
 
     recognition.onend = function() {
       isListening = false;
       micBtn.classList.remove('listening');
       chatInput.placeholder = "Escribe o usa el micrófono...";
-      if (chatInput.value.trim() !== "") {
-        chatBtn.click(); // Envía automáticamente
-      }
-    };
-    
-    recognition.onerror = function(event) {
-      isListening = false;
-      micBtn.classList.remove('listening');
+      if (chatInput.value.trim() !== "") chatBtn.click();
     };
   } else {
     micBtn.style.display = 'none'; 
   }
 
-  // REGISTRO DEL SERVICE WORKER (PWA)
+  // PWA
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW err', err));
-    });
+    window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
   }
 </script>
 </body>
