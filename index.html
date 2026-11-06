@@ -123,7 +123,7 @@
 
 <script>
   let contextoQuiz = null; 
-  let currentFlashcards = []; // Guarda las tarjetas mezcladas
+  let currentFlashcards = []; 
   let currentFcIndex = 0;
   let currentUtterances = [];
   let currentTopicKey = 'present_simple';
@@ -187,7 +187,7 @@
     topicGrid.appendChild(btn);
   });
 
-  // Función para mezclar arrays (Fisher-Yates)
+  // Algoritmo Fisher-Yates (Garantiza aleatoriedad total y 0 repeticiones)
   function shuffleArray(array) {
     let currentIndex = array.length, randomIndex;
     while (currentIndex !== 0) {
@@ -206,14 +206,14 @@
     document.getElementById('podcastTitle').textContent = '🎧 ' + t.name;
     renderScript(t.podcast);
     
-    // 1. MEZCLAR PREGUNTAS Y RESPUESTAS
+    // --- MEZCLAR PREGUNTAS Y RESPUESTAS ---
     const shuffledQuestions = [...t.questions].map(q => {
-      return { ...q, opts: shuffleArray([...q.opts]) }; // Clonamos y mezclamos opciones
+      return { ...q, opts: shuffleArray([...q.opts]) }; 
     });
-    shuffleArray(shuffledQuestions); // Mezclamos el orden de las preguntas
+    shuffleArray(shuffledQuestions); 
     renderQuiz(shuffledQuestions, document.getElementById('quizContainer'));
     
-    // 2. MEZCLAR FLASHCARDS
+    // --- MEZCLAR FLASHCARDS ---
     currentFlashcards = shuffleArray([...t.flashcards]);
     currentFcIndex = 0; 
     updateFlashcard(); 
@@ -305,15 +305,42 @@
 
   function updateFlashcard() {
     if (!currentFlashcards || currentFlashcards.length === 0) return;
+    
+    // Si llega al final, muestra mensaje de repaso
+    if (currentFcIndex >= currentFlashcards.length) {
+      document.getElementById('fcFront').textContent = "¡Has repasado todas! 🎉";
+      document.getElementById('fcBack').textContent = "Pulsa Siguiente para mezclar de nuevo";
+      document.getElementById('fcCounter').textContent = "Fin";
+      return;
+    }
+
     const card = currentFlashcards[currentFcIndex];
     document.getElementById('fcFront').textContent = card.front; 
     document.getElementById('fcBack').textContent = card.back;
     document.getElementById('fcCounter').textContent = (currentFcIndex + 1) + ' / ' + currentFlashcards.length;
     document.getElementById('flashcard').classList.remove('flipped');
   }
-  document.getElementById('flashcardBox').onclick = () => { document.getElementById('flashcard').classList.toggle('flipped'); };
-  document.getElementById('nextFc').onclick = () => { currentFcIndex = (currentFcIndex + 1) % currentFlashcards.length; updateFlashcard(); };
-  document.getElementById('prevFc').onclick = () => { currentFcIndex = (currentFcIndex - 1 + currentFlashcards.length) % currentFlashcards.length; updateFlashcard(); };
+
+  document.getElementById('flashcardBox').onclick = () => { 
+    if(currentFcIndex < currentFlashcards.length) {
+      document.getElementById('flashcard').classList.toggle('flipped'); 
+    }
+  };
+
+  document.getElementById('nextFc').onclick = () => { 
+    currentFcIndex++;
+    if (currentFcIndex > currentFlashcards.length) {
+      // Volver a mezclar si ya terminó
+      currentFlashcards = shuffleArray([...currentFlashcards]);
+      currentFcIndex = 0;
+    }
+    updateFlashcard(); 
+  };
+
+  document.getElementById('prevFc').onclick = () => { 
+    if(currentFcIndex > 0) currentFcIndex--;
+    updateFlashcard(); 
+  };
 
   document.getElementById('aiGenerateBtn').onclick = async function(){
     const topic = document.getElementById('aiTopic').value.trim(); if (!topic) return alert('Escribe un tema');
@@ -339,7 +366,7 @@
     finally { btn.disabled = false; }
   };
 
-  // INICIAR LA APP (Llama a la función que mezcla todo al cargar)
+  // INICIAR APP: Al recargar la página, ejecuta esto y mezcla todo automáticamente.
   selectTopic('present_simple');
 </script>
 </body>
