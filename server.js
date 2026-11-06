@@ -10,6 +10,7 @@ app.use(express.static(__dirname));
 
 const GROQ_KEY = process.env.GROQ_API_KEY;
 
+// 1. Generar Exámenes
 app.post('/api/quiz', async (req, res) => {
   const { topic } = req.body;
   try {
@@ -19,8 +20,8 @@ app.post('/api/quiz', async (req, res) => {
       body: JSON.stringify({
         model: 'openai/gpt-oss-120b',
         messages: [
-          { role: 'system', content: 'Devuelves SOLO un array JSON válido: [{"q":"pregunta","a":"correcta","opts":["a","b","c"]}]' },
-          { role: 'user', content: 'Genera 5 preguntas de examen sobre: ' + topic }
+          { role: 'system', content: 'Devuelves SOLO un array JSON válido, sin markdown, con este formato exacto: [{"q":"pregunta","a":"correcta","opts":["opción1","opción2","opción3"]}]' },
+          { role: 'user', content: 'Genera 5 preguntas de examen de inglés sobre: ' + topic }
         ]
       })
     });
@@ -30,6 +31,7 @@ app.post('/api/quiz', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// 2. Generar Podcasts
 app.post('/api/podcast', async (req, res) => {
   const { topic } = req.body;
   try {
@@ -39,7 +41,7 @@ app.post('/api/podcast', async (req, res) => {
       body: JSON.stringify({
         model: 'openai/gpt-oss-120b',
         messages: [
-          { role: 'system', content: 'Crea un diálogo corto entre "Host" y "Teacher". Devuelve SOLO JSON: [{"who":"Host","text":"..."}, {"who":"Teacher","text":"..."}]' },
+          { role: 'system', content: 'Eres un profesor de inglés. Crea un diálogo corto de 6 líneas entre un "Host" (presentador) y un "Teacher" (profesor). Devuelve SOLO JSON válido: [{"who":"Host","text":"..."}, {"who":"Teacher","text":"..."}]' },
           { role: 'user', content: 'Crea el podcast sobre: ' + topic }
         ]
       })
@@ -50,7 +52,7 @@ app.post('/api/podcast', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// CHAT CON MEMORIA A LARGO PLAZO
+// 3. Chat con Memoria a Largo Plazo
 app.post('/api/chat', async (req, res) => {
   const { message, context, history } = req.body;
   try {
@@ -59,11 +61,9 @@ app.post('/api/chat', async (req, res) => {
     let messages = [
       { 
         role: 'system', 
-        content: 'Eres un tutor de inglés conversacional. Responde en español y luego en inglés. Usa emojis. ' +
-                 'TIENES MEMORIA CONTEXTUAL A LARGO PLAZO. ' +
-                 'Si el usuario te da una orden y luego dice cosas como "hazme otro", "más resumido", "explícalo mejor", "tradúcelo" o "cambia el tono", ' +
-                 'DEBES LEER LOS MENSAJES ANTERIORES de la conversación para saber exactamente a qué tema se refiere. ' +
-                 'NUNCA pierdas el hilo del tema principal que se estaba tratando. ' + contextText 
+        content: 'Eres un tutor de inglés experto y conversacional. Responde SIEMPRE en español y luego en inglés. Usa emojis. ' +
+                 'TIENES MEMORIA CONTEXTUAL. Si el usuario dice "hazme otro", "más resumido", "cámbialo", DEBES buscar en los mensajes anteriores de la conversación para saber a qué se refiere y mantener el mismo tema. ' + 
+                 'No pierdas nunca el hilo de la conversación. ' + contextText 
       }
     ];
 
