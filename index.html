@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudyCast · Repaso para Examen</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 <style>
   :root {
     --azul: #1f4e79; --violeta: #6a4c93; --fondo: #f7f9fb; --tarjeta: #ffffff;
@@ -13,31 +14,35 @@
     --fondo: #121212; --tarjeta: #1e1e1e; --texto: #e0e0e0; --borde: #333333; --gris: #2d2d2d; --azul: #4db8ff;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; padding: 14px; font-family: system-ui, sans-serif; background: var(--fondo); color: var(--texto); line-height: 1.5; transition: background .3s; }
+  body { margin: 0; padding: 14px; font-family: system-ui, -apple-system, Arial, sans-serif; background: var(--fondo); color: var(--texto); line-height: 1.5; transition: background .3s; }
   .container { max-width: 820px; margin: 0 auto; background: var(--tarjeta); border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
   header { text-align: center; margin-bottom: 20px; position: relative; }
   h1 { margin: 0; font-size: 26px; color: var(--azul); }
   .subtitle { color: #888; font-size: 14px; margin: 4px 0 0; }
-  .top-btns { position: absolute; top: 0; right: 0; }
-  .icon-btn { background: var(--gris); border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; color: var(--texto); }
+  .top-btns { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
+  .icon-btn { background: var(--gris); border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--texto); }
   
   .topic-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 10px; margin: 16px 0; }
-  .topic-btn { background: var(--gris); border: 2px solid transparent; color: var(--texto); border-radius: 12px; padding: 14px 10px; cursor: pointer; font-size: 14px; font-weight: 600; text-align: center; }
+  .topic-btn { background: var(--gris); border: 2px solid transparent; color: var(--texto); border-radius: 12px; padding: 14px 10px; cursor: pointer; font-size: 14px; font-weight: 600; text-align: center; transition: all .2s; }
   .topic-btn.active { background: var(--azul); color: #fff; border-color: var(--azul); }
   .topic-btn .emoji { display: block; font-size: 22px; margin-bottom: 4px; }
   
   .tabs { display: flex; gap: 6px; margin: 18px 0 12px; border-bottom: 2px solid var(--borde); flex-wrap: wrap; }
-  .tab { background: none; border: none; padding: 10px 14px; cursor: pointer; font-size: 15px; font-weight: 600; color: #888; border-bottom: 3px solid transparent; }
+  .tab { background: none; border: none; padding: 10px 14px; cursor: pointer; font-size: 15px; font-weight: 600; color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px; }
   .tab.active { color: var(--azul); border-bottom-color: var(--azul); }
   .panel { display: none; }
-  .panel.active { display: block; }
+  .panel.active { display: block; animation: fade .3s; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
   
   .podcast-player { background: linear-gradient(135deg,var(--violeta),var(--azul)); color: #fff; border-radius: 14px; padding: 20px; margin-bottom: 14px; }
-  .podcast-controls button { background: rgba(255,255,255,.2); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 15px; cursor: pointer; font-weight: 600; margin-right: 8px; }
+  .podcast-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .podcast-controls button { background: rgba(255,255,255,.2); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 15px; cursor: pointer; font-weight: 600; }
   .script-line { background: var(--tarjeta); border-left: 4px solid var(--violeta); border-radius: 10px; padding: 10px 12px; margin: 8px 0; font-size: 14px; cursor: pointer; }
+  .script-line.playing { background: rgba(106, 76, 147, 0.2); }
   
   .question { background: var(--gris); border-radius: 12px; padding: 16px; margin: 12px 0; }
-  .options label { display: block; background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 10px; padding: 10px 12px; margin: 6px 0; cursor: pointer; font-size: 15px; color: var(--texto); }
+  .options label { display: block; background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 10px; padding: 10px 12px; margin: 6px 0; cursor: pointer; font-size: 15px; color: var(--texto); transition: all .15s; }
+  .options label:hover { border-color: var(--azul); }
   .options label.correct { background: #e8f5e9; border-color: var(--verde); color: #1b5e20; }
   .options label.wrong { background: #ffebee; border-color: var(--rojo); color: #b71c1c; }
   .score { background: #fff3e0; border: 1.5px solid #ffb74d; border-radius: 12px; padding: 14px; margin-top: 14px; font-weight: bold; text-align: center; color: #e65100; }
@@ -52,15 +57,16 @@
   .ask-ai { text-align: center; padding: 24px 16px; background: var(--gris); border-radius: 14px; margin-bottom: 12px; }
   .ask-ai input[type="text"] { padding: 10px; border: 1.5px solid var(--borde); border-radius: 10px; width: 100%; max-width: 400px; margin-bottom: 10px; background: var(--tarjeta); color: var(--texto); }
   button.primary { background: var(--azul); color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-size: 15px; cursor: pointer; font-weight: 600; }
+  button.primary:disabled { background: #b0bec5; cursor: not-allowed; }
   #chatReply { margin-top: 12px; text-align: left; background: var(--tarjeta); padding: 12px; border-radius: 10px; border: 1px solid var(--borde); display: none; white-space: pre-wrap; }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
-    <div class="top-btns"><button class="icon-btn" id="themeBtn">🌙</button></div>
+    <div class="top-btns"><button class="icon-btn" id="themeBtn" title="Modo Oscuro">🌙</button></div>
     <h1>🎓 StudyCast</h1>
-    <p class="subtitle">Tu App de Estudio</p>
+    <p class="subtitle">Tu App de Estudio para el Examen</p>
   </header>
 
   <div class="topic-grid" id="topicGrid"></div>
@@ -72,37 +78,58 @@
     <button class="tab" data-tab="ai">🤖 Tutor IA</button>
   </div>
 
+  <!-- Podcast -->
   <div class="panel active" id="panel-podcast">
     <div class="podcast-player">
-      <p id="podcastTitle" style="margin-top:0;">Elige un tema</p>
-      <div class="podcast-controls"><button id="playBtn">▶ Reproducir</button><button id="stopBtn">■ Detener</button></div>
+      <p id="podcastTitle" style="margin-top:0;">Elige un tema arriba</p>
+      <div class="podcast-controls">
+        <button id="playBtn">▶ Reproducir</button>
+        <button id="stopBtn">■ Detener</button>
+      </div>
       <div id="nowSpeaking" style="margin-top:12px;font-size:14px;"></div>
     </div>
     <div id="scriptContainer"></div>
   </div>
 
-  <div class="panel" id="panel-quiz"><div id="quizContainer"></div></div>
-
-  <div class="panel" id="panel-flashcards">
-    <p style="text-align:center;color:#888;">Haz clic para girar.</p>
-    <div class="flashcard-container" id="flashcardBox">
-      <div class="flashcard" id="flashcard"><div class="flashcard-front" id="fcFront">Word</div><div class="flashcard-back" id="fcBack">Translation</div></div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center;"><button class="primary" id="prevFc">⬅ Anterior</button><button class="primary" id="nextFc">Siguiente ➡</button></div>
+  <!-- Quiz -->
+  <div class="panel" id="panel-quiz">
+    <div id="quizContainer"></div>
   </div>
 
+  <!-- Flashcards -->
+  <div class="panel" id="panel-flashcards">
+    <p style="text-align:center;color:#888;">Haz clic en la tarjeta para girarla.</p>
+    <div class="flashcard-container" id="flashcardBox">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-front" id="fcFront">Word</div>
+        <div class="flashcard-back" id="fcBack">Translation</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="primary" id="prevFc">⬅ Anterior</button>
+      <button class="primary" id="nextFc">Siguiente ➡</button>
+    </div>
+  </div>
+
+  <!-- IA -->
   <div class="panel" id="panel-ai">
     <div class="ask-ai">
       <h3>🤖 Simulacro de Examen</h3>
-      <input type="text" id="aiTopic" placeholder="Ej: Past Simple, comparativos..."><br>
+      <p>Escribe los temas y la IA creará 5 preguntas.</p>
+      <input type="text" id="aiTopic" placeholder="Ej: Past Simple, comparativos...">
+      <br>
       <button class="primary" id="aiGenerateBtn">Generar preguntas</button>
       <div id="aiLoading" style="display:none;margin-top:12px;">⏳ Generando...</div>
     </div>
     <div id="aiQuizContainer"></div>
+
     <hr style="margin:24px 0;border:none;border-top:1px solid var(--borde);">
+
     <div class="ask-ai">
       <h3>💬 Tutor Bilingüe</h3>
-      <input type="text" id="chatInput" placeholder="Ej: Explícame el past simple..."><br>
+      <p>Te explicará en español e inglés.</p>
+      <input type="text" id="chatInput" placeholder="Ej: Explícame el past simple...">
+      <br>
       <button class="primary" id="chatBtn">Enviar</button>
       <div id="chatReply"></div>
     </div>
@@ -110,104 +137,242 @@
 </div>
 
 <script>
-  // Modo Oscuro
+  // --- Lógica de Modo Oscuro ---
   const themeBtn = document.getElementById('themeBtn');
-  if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark'); themeBtn.textContent = '☀️'; }
-  themeBtn.addEventListener('click', () => { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); themeBtn.textContent = isDark ? '☀️' : '🌙'; });
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+    themeBtn.textContent = '☀️';
+  }
+  themeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    themeBtn.textContent = isDark ? '☀️' : '🌙';
+  });
 
-  // Datos (15 preguntas por tema)
+  // --- DATOS (15 PREGUNTAS Y FLASHCARDS POR TEMA) ---
   const TOPICS = {
     present_simple: {
       name: "Present Simple", emoji: "⏰",
-      podcast: [{ who: "Host", text: "Welcome." }, { who: "Teacher", text: "It is for routines. I go to school every day." }],
-      questions: [
-        { q: "My sister ___ to school by bus every day.", a: "goes", opts: ["go","goes","going"] }, { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] }, { q: "We ___ not watch TV.", a: "do", opts: ["do","does","are"] }, { q: "He ___ football.", a: "plays", opts: ["play","plays","playing"] }, { q: "Water ___ at 100 degrees.", a: "boils", opts: ["boil","boils","boiling"] }, { q: "They ___ in a big house.", a: "live", opts: ["live","lives","living"] }, { q: "I ___ coffee.", a: "drink", opts: ["drink","drinks","drinking"] }, { q: "___ they play tennis?", a: "Do", opts: ["Do","Does","Are"] }, { q: "She ___ have a car.", a: "doesn't", opts: ["don't","doesn't","isn't"] }, { q: "The train ___ at 9:00.", a: "leaves", opts: ["leave","leaves","leaving"] }, { q: "You ___ English.", a: "speak", opts: ["speak","speaks","speaking"] }, { q: "My brother ___ his teeth.", a: "brushes", opts: ["brush","brushes","brushing"] }, { q: "We ___ to the gym.", a: "go", opts: ["go","goes","going"] }, { q: "It ___ a lot.", a: "rains", opts: ["rain","rains","raining"] }, { q: "___ he work in a bank?", a: "Does", opts: ["Do","Does","Is"] }
+      podcast: [
+        { who: "Host", text: "Welcome. Today we talk about the present simple." },
+        { who: "Teacher", text: "It is for routines, habits and facts. I go to school every day. She works in a hospital." },
+        { who: "Host", text: "When do we add S?" },
+        { who: "Teacher", text: "With he, she, it. He plays. She watches." }
       ],
-      flashcards: [{ front: "go", back: "ir" }, { front: "work", back: "trabajar" }, { front: "every day", back: "todos los días" }, { front: "always", back: "siempre" }, { front: "never", back: "nunca" }, { front: "often", back: "a menudo" }, { front: "sometimes", back: "a veces" }, { front: "usually", back: "usualmente" }, { front: "play", back: "jugar" }, { front: "study", back: "estudiar" }, { front: "watch", back: "mirar" }, { front: "read", back: "leer" }, { front: "write", back: "escribir" }, { front: "listen", back: "escuchar" }, { front: "speak", back: "hablar" }]
+      questions: [
+        { q: "My sister ___ to school by bus every day.", a: "goes", opts: ["go","goes","going"] },
+        { q: "___ she like pizza?", a: "Does", opts: ["Do","Does","Is"] },
+        { q: "We ___ not watch TV in the morning.", a: "do", opts: ["do","does","are"] },
+        { q: "He ___ football on Sundays.", a: "plays", opts: ["play","plays","playing"] },
+        { q: "Water ___ at 100 degrees.", a: "boils", opts: ["boil","boils","boiling"] },
+        { q: "They ___ in a big house.", a: "live", opts: ["live","lives","living"] },
+        { q: "I ___ coffee every morning.", a: "drink", opts: ["drink","drinks","drinking"] },
+        { q: "___ they play tennis?", a: "Do", opts: ["Do","Does","Are"] },
+        { q: "She ___ have a car.", a: "doesn't", opts: ["don't","doesn't","isn't"] },
+        { q: "The train ___ at 9:00.", a: "leaves", opts: ["leave","leaves","leaving"] },
+        { q: "You ___ English very well.", a: "speak", opts: ["speak","speaks","speaking"] },
+        { q: "My brother ___ his teeth twice a day.", a: "brushes", opts: ["brush","brushes","brushing"] },
+        { q: "We ___ to the gym on Mondays.", a: "go", opts: ["go","goes","going"] },
+        { q: "It ___ a lot in winter.", a: "rains", opts: ["rain","rains","raining"] },
+        { q: "___ he work in a bank?", a: "Does", opts: ["Do","Does","Is"] }
+      ],
+      flashcards: [
+        { front: "go", back: "ir" }, { front: "work", back: "trabajar" }, { front: "every day", back: "todos los días" },
+        { front: "always", back: "siempre" }, { front: "never", back: "nunca" }, { front: "often", back: "a menudo" },
+        { front: "sometimes", back: "a veces" }, { front: "usually", back: "usualmente" }, { front: "play", back: "jugar" },
+        { front: "study", back: "estudiar" }, { front: "watch", back: "mirar" }, { front: "read", back: "leer" },
+        { front: "write", back: "escribir" }, { front: "listen", back: "escuchar" }, { front: "speak", back: "hablar" }
+      ]
     },
     past_simple: {
       name: "Past Simple", emoji: "📅",
-      podcast: [{ who: "Host", text: "Today we review the past simple." }, { who: "Teacher", text: "Go becomes went." }],
-      questions: [
-        { q: "I ___ to the park yesterday.", a: "went", opts: ["go","went","going"] }, { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] }, { q: "___ you see the film?", a: "Did", opts: ["Do","Did","Does"] }, { q: "We ___ not eat.", a: "did", opts: ["do","did","does"] }, { q: "They ___ pizza.", a: "ate", opts: ["eat","ate","eating"] }, { q: "He ___ a new car.", a: "bought", opts: ["buy","bought","buying"] }, { q: "I ___ my homework.", a: "did", opts: ["do","did","doing"] }, { q: "Where ___ you go?", a: "did", opts: ["do","did","does"] }, { q: "She ___ in London.", a: "lived", opts: ["live","lived","living"] }, { q: "We ___ to the beach.", a: "went", opts: ["go","went","going"] }, { q: "He ___ not play.", a: "did", opts: ["do","did","does"] }, { q: "I ___ a movie.", a: "saw", opts: ["see","saw","seeing"] }, { q: "They ___ their friends.", a: "met", opts: ["meet","met","meeting"] }, { q: "She ___ a song.", a: "sang", opts: ["sing","sang","singing"] }, { q: "___ they arrive?", a: "Did", opts: ["Do","Did","Does"] }
+      podcast: [
+        { who: "Host", text: "Today on StudyCast we review the past simple." },
+        { who: "Teacher", text: "Actions that finished in the past. Go becomes went. Eat becomes ate." }
       ],
-      flashcards: [{ front: "went", back: "fui / fue" }, { front: "ate", back: "comí" }, { front: "yesterday", back: "ayer" }, { front: "last night", back: "anoche" }, { front: "bought", back: "compré" }, { front: "saw", back: "vi" }, { front: "met", back: "conocí" }, { front: "sang", back: "canté" }, { front: "did", back: "hice" }, { front: "lived", back: "viví" }, { front: "watched", back: "miré" }, { front: "played", back: "jugué" }, { front: "studied", back: "estudié" }, { front: "worked", back: "trabajé" }, { front: "wrote", back: "escribí" }]
+      questions: [
+        { q: "I ___ to the park yesterday.", a: "went", opts: ["go","went","going"] },
+        { q: "She ___ TV last night.", a: "watched", opts: ["watch","watched","watching"] },
+        { q: "___ you see the film?", a: "Did", opts: ["Do","Did","Does"] },
+        { q: "We ___ not eat at home.", a: "did", opts: ["do","did","does"] },
+        { q: "They ___ pizza two days ago.", a: "ate", opts: ["eat","ate","eating"] },
+        { q: "He ___ a new car last week.", a: "bought", opts: ["buy","bought","buying"] },
+        { q: "I ___ my homework last night.", a: "did", opts: ["do","did","doing"] },
+        { q: "Where ___ you go yesterday?", a: "did", opts: ["do","did","does"] },
+        { q: "She ___ in London in 2010.", a: "lived", opts: ["live","lived","living"] },
+        { q: "We ___ to the beach last summer.", a: "went", opts: ["go","went","going"] },
+        { q: "He ___ not play football.", a: "did", opts: ["do","did","does"] },
+        { q: "I ___ a great movie last night.", a: "saw", opts: ["see","saw","seeing"] },
+        { q: "They ___ their friends at the party.", a: "met", opts: ["meet","met","meeting"] },
+        { q: "She ___ a beautiful song.", a: "sang", opts: ["sing","sang","singing"] },
+        { q: "___ they arrive on time?", a: "Did", opts: ["Do","Did","Does"] }
+      ],
+      flashcards: [
+        { front: "went", back: "fui / fue" }, { front: "ate", back: "comí / comió" }, { front: "yesterday", back: "ayer" },
+        { front: "last night", back: "anoche" }, { front: "bought", back: "compré / compró" }, { front: "saw", back: "vi / vio" },
+        { front: "met", back: "conocí / conoció" }, { front: "sang", back: "canté / cantó" }, { front: "did", back: "hice / hizo" },
+        { front: "lived", back: "viví / vivió" }, { front: "watched", back: "miré / miró" }, { front: "played", back: "jugué / jugó" },
+        { front: "studied", back: "estudié / estudió" }, { front: "worked", back: "trabajé / trabajó" }, { front: "wrote", back: "escribí / escribió" }
+      ]
     },
     vocabulary: {
       name: "Vocabulary", emoji: "📚",
-      podcast: [{ who: "Host", text: "Welcome back." }, { who: "Teacher", text: "Places: bank, supermarket." }],
-      questions: [
-        { q: "You buy medicine at the ___.", a: "pharmacy", opts: ["bank","pharmacy","library"] }, { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] }, { q: "You wear ___ on your feet.", a: "shoes", opts: ["shoes","hat","gloves"] }, { q: "A place to borrow books is a ___.", a: "library", opts: ["library","bank","supermarket"] }, { q: "The opposite of 'expensive' is ___.", a: "cheap", opts: ["rich","cheap","big"] }, { q: "You sleep in a ___.", a: "bed", opts: ["bed","chair","table"] }, { q: "We cut paper with ___.", a: "scissors", opts: ["scissors","spoon","plate"] }, { q: "The opposite of 'fast' is ___.", a: "slow", opts: ["quick","slow","big"] }, { q: "Catch a ___ at the station.", a: "train", opts: ["train","bike","plane"] }, { q: "He flies planes. He is a ___.", a: "pilot", opts: ["driver","pilot","chef"] }, { q: "We eat soup with a ___.", a: "spoon", opts: ["fork","knife","spoon"] }, { q: "The sun rises in the ___.", a: "east", opts: ["west","east","north"] }, { q: "A ___ works in a hospital.", a: "doctor", opts: ["teacher","doctor","pilot"] }, { q: "Write with a ___.", a: "pen", opts: ["pen","cup","shoe"] }, { q: "The opposite of 'happy' is ___.", a: "sad", opts: ["angry","sad","tired"] }
+      podcast: [
+        { who: "Host", text: "Welcome back. Today we review everyday vocabulary." },
+        { who: "Teacher", text: "Let's start with places: bank, supermarket, pharmacy." }
       ],
-      flashcards: [{ front: "Pharmacy", back: "Farmacia" }, { front: "Bank", back: "Banco" }, { front: "Supermarket", back: "Supermercado" }, { front: "Library", back: "Biblioteca" }, { front: "Ticket", back: "Boleto" }, { front: "Train", back: "Tren" }, { front: "Bed", back: "Cama" }, { front: "Shoes", back: "Zapatos" }, { front: "Pilot", back: "Piloto" }, { front: "Doctor", back: "Médico" }, { front: "Teacher", back: "Profesor" }, { front: "Spoon", back: "Cuchara" }, { front: "Scissors", back: "Tijeras" }, { front: "East", back: "Este" }, { front: "Pen", back: "Bolígrafo" }]
+      questions: [
+        { q: "You buy medicine at the ___.", a: "pharmacy", opts: ["bank","pharmacy","library"] },
+        { q: "The opposite of 'hot' is ___.", a: "cold", opts: ["warm","cold","big"] },
+        { q: "You wear ___ on your feet.", a: "shoes", opts: ["shoes","hat","gloves"] },
+        { q: "A place to borrow books is a ___.", a: "library", opts: ["library","bank","supermarket"] },
+        { q: "The opposite of 'expensive' is ___.", a: "cheap", opts: ["rich","cheap","big"] },
+        { q: "You sleep in a ___.", a: "bed", opts: ["bed","chair","table"] },
+        { q: "We use a ___ to cut paper.", a: "scissors", opts: ["scissors","spoon","plate"] },
+        { q: "The opposite of 'fast' is ___.", a: "slow", opts: ["quick","slow","big"] },
+        { q: "You can catch a ___ at the station.", a: "train", opts: ["train","bike","plane"] },
+        { q: "He is a ___. He flies planes.", a: "pilot", opts: ["driver","pilot","chef"] },
+        { q: "We eat soup with a ___.", a: "spoon", opts: ["fork","knife","spoon"] },
+        { q: "The sun rises in the ___.", a: "east", opts: ["west","east","north"] },
+        { q: "A ___ works in a hospital.", a: "doctor", opts: ["teacher","doctor","pilot"] },
+        { q: "I need a ___ to write this down.", a: "pen", opts: ["pen","cup","shoe"] },
+        { q: "The opposite of 'happy' is ___.", a: "sad", opts: ["angry","sad","tired"] }
+      ],
+      flashcards: [
+        { front: "Pharmacy", back: "Farmacia" }, { front: "Bank", back: "Banco" }, { front: "Supermarket", back: "Supermercado" },
+        { front: "Library", back: "Biblioteca" }, { front: "Ticket", back: "Boleto / Billete" }, { front: "Train", back: "Tren" },
+        { front: "Bed", back: "Cama" }, { front: "Shoes", back: "Zapatos" }, { front: "Pilot", back: "Piloto" },
+        { front: "Doctor", back: "Médico" }, { front: "Teacher", back: "Profesor" }, { front: "Spoon", back: "Cuchara" },
+        { front: "Scissors", back: "Tijeras" }, { front: "East", back: "Este" }, { front: "Pen", back: "Bolígrafo" }
+      ]
     }
   };
 
-  let currentTopicKey = 'present_simple'; let currentUtterances = []; let currentFcIndex = 0;
+  let currentTopicKey = 'present_simple'; 
+  let currentUtterances = []; 
+  let currentFcIndex = 0;
+
   const topicGrid = document.getElementById('topicGrid');
-  
   Object.keys(TOPICS).forEach(function(key){
-    const t = TOPICS[key]; const btn = document.createElement('button');
+    const t = TOPICS[key];
+    const btn = document.createElement('button');
     btn.className = 'topic-btn'; btn.dataset.key = key;
     btn.innerHTML = '<span class="emoji">' + t.emoji + '</span>' + t.name;
     btn.addEventListener('click', function(){ selectTopic(key); });
     topicGrid.appendChild(btn);
   });
 
+  // Función para mezclar arrays aleatoriamente
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
   function selectTopic(key) {
-    currentTopicKey = key; stopPodcast();
+    currentTopicKey = key; 
+    stopPodcast();
     document.querySelectorAll('.topic-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.key === key); });
     const t = TOPICS[key];
     document.getElementById('podcastTitle').textContent = '🎧 ' + t.name;
-    renderScript(t.podcast); renderQuiz(t.questions, document.getElementById('quizContainer'));
-    currentFcIndex = 0; updateFlashcard(); document.getElementById('flashcard').classList.remove('flipped');
+    renderScript(t.podcast);
+    
+    // MEZCLAR PREGUNTAS Y RESPUESTAS
+    const shuffledQuestions = [...t.questions].map(q => {
+      return {
+        ...q,
+        opts: shuffleArray([...q.opts]) 
+      };
+    });
+    shuffleArray(shuffledQuestions); 
+
+    renderQuiz(shuffledQuestions, document.getElementById('quizContainer'));
+    
+    currentFcIndex = 0; 
+    updateFlashcard(); 
+    document.getElementById('flashcard').classList.remove('flipped');
   }
 
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.addEventListener('click', function(){
       document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
       document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
-      tab.classList.add('active'); document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      tab.classList.add('active'); 
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
     });
   });
 
-  const scriptContainer = document.getElementById('scriptContainer'); const nowSpeaking = document.getElementById('nowSpeaking');
+  // --- PODCAST ---
+  const scriptContainer = document.getElementById('scriptContainer'); 
+  const nowSpeaking = document.getElementById('nowSpeaking');
+  
   function renderScript(lines) {
     scriptContainer.innerHTML = '';
     lines.forEach(function(line, i){
-      const div = document.createElement('div'); div.className = 'script-line';
+      const div = document.createElement('div'); 
+      div.className = 'script-line';
       div.innerHTML = '<span style="color:var(--violeta);font-weight:bold;font-size:12px;display:block;">' + line.who + '</span>' + line.text;
-      div.onclick = () => playFrom(i); scriptContainer.appendChild(div);
+      div.onclick = () => playFrom(i); 
+      scriptContainer.appendChild(div);
     });
   }
+
   function playFrom(startIndex) {
-    if (!('speechSynthesis' in window)) return alert('No audio.');
-    stopPodcast(); const lines = TOPICS[currentTopicKey].podcast;
+    if (!('speechSynthesis' in window)) return alert('Tu navegador no soporta audio.');
+    stopPodcast(); 
+    const lines = TOPICS[currentTopicKey].podcast;
     for (let i = startIndex; i < lines.length; i++) {
-      const u = new SpeechSynthesisUtterance(lines[i].text); u.lang = 'en-GB';
-      if (lines[i].who === 'Host') { u.pitch = 1.1; } else { u.pitch = 0.85; }
+      const u = new SpeechSynthesisUtterance(lines[i].text); 
+      u.lang = 'en-GB';
+      if (lines[i].who === 'Host') { u.pitch = 1.1; u.rate = 0.95; } 
+      else { u.pitch = 0.85; u.rate = 0.9; }
       u.onstart = () => { nowSpeaking.textContent = '▶ ' + lines[i].who + ': ' + lines[i].text; };
-      currentUtterances.push(u); speechSynthesis.speak(u);
+      u.onend = () => { if (i === lines.length - 1) nowSpeaking.textContent = '✅ Terminado'; };
+      currentUtterances.push(u); 
+      speechSynthesis.speak(u);
     }
   }
-  function stopPodcast() { if ('speechSynthesis' in window) speechSynthesis.cancel(); currentUtterances = []; nowSpeaking.textContent = ''; }
+
+  function stopPodcast() { 
+    if ('speechSynthesis' in window) speechSynthesis.cancel(); 
+    currentUtterances = []; 
+    nowSpeaking.textContent = ''; 
+  }
   document.getElementById('playBtn').onclick = () => playFrom(0);
   document.getElementById('stopBtn').onclick = stopPodcast;
 
+  // --- QUIZ ---
   function renderQuiz(questions, container) {
-    container.innerHTML = ''; const suffix = Math.random().toString(36).slice(2);
+    container.innerHTML = ''; 
+    const suffix = Math.random().toString(36).slice(2);
+    
     questions.forEach(function(item, qIndex){
-      const box = document.createElement('div'); box.className = 'question';
+      const box = document.createElement('div'); 
+      box.className = 'question';
       box.innerHTML = '<p style="margin:0 0 10px;font-weight:bold;">' + (qIndex + 1) + '. ' + item.q + '</p>';
-      const opts = document.createElement('div'); opts.className = 'options';
+      const opts = document.createElement('div'); 
+      opts.className = 'options';
+      
       item.opts.forEach(function(opt){
-        const label = document.createElement('label'); const input = document.createElement('input');
-        input.type = 'radio'; input.name = 'q' + qIndex + '_' + suffix; input.value = opt;
-        label.appendChild(input); label.appendChild(document.createTextNode(opt)); opts.appendChild(label);
+        const label = document.createElement('label'); 
+        const input = document.createElement('input');
+        input.type = 'radio'; 
+        input.name = 'q' + qIndex + '_' + suffix; 
+        input.value = opt;
+        label.appendChild(input); 
+        label.appendChild(document.createTextNode(opt)); 
+        opts.appendChild(label);
       });
-      box.appendChild(opts); container.appendChild(box);
+      box.appendChild(opts); 
+      container.appendChild(box);
     });
-    const checkBtn = document.createElement('button'); checkBtn.className = 'primary'; checkBtn.textContent = 'Corregir respuestas';
+
+    const checkBtn = document.createElement('button'); 
+    checkBtn.className = 'primary'; 
+    checkBtn.textContent = 'Corregir respuestas';
     checkBtn.onclick = function(){
       let score = 0;
       questions.forEach(function(item, qIndex){
@@ -220,47 +385,83 @@
           input.disabled = true;
         });
       });
-      const oldScore = container.querySelector('.score'); if (oldScore) oldScore.remove();
-      const scoreEl = document.createElement('div'); scoreEl.className = 'score'; scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
+      const oldScore = container.querySelector('.score'); 
+      if (oldScore) oldScore.remove();
+      const scoreEl = document.createElement('div'); 
+      scoreEl.className = 'score'; 
+      scoreEl.textContent = 'Puntuación: ' + score + ' / ' + questions.length;
       container.appendChild(scoreEl);
     };
     container.appendChild(checkBtn);
   }
 
+  // --- FLASHCARDS ---
   function updateFlashcard() {
-    const cards = TOPICS[currentTopicKey].flashcards;
+    const cards = TOPICS[currentTopicKey].flashcards; 
+    if (!cards || cards.length === 0) return;
     const card = cards[currentFcIndex];
-    document.getElementById('fcFront').textContent = card.front; document.getElementById('fcBack').textContent = card.back;
+    document.getElementById('fcFront').textContent = card.front; 
+    document.getElementById('fcBack').textContent = card.back;
     document.getElementById('flashcard').classList.remove('flipped');
   }
   document.getElementById('flashcardBox').onclick = () => { document.getElementById('flashcard').classList.toggle('flipped'); };
   document.getElementById('nextFc').onclick = () => { const cards = TOPICS[currentTopicKey].flashcards; currentFcIndex = (currentFcIndex + 1) % cards.length; updateFlashcard(); };
   document.getElementById('prevFc').onclick = () => { const cards = TOPICS[currentTopicKey].flashcards; currentFcIndex = (currentFcIndex - 1 + cards.length) % cards.length; updateFlashcard(); };
 
+  // --- TUTOR IA ---
   document.getElementById('aiGenerateBtn').onclick = async function(){
-    const topic = document.getElementById('aiTopic').value.trim(); if (!topic) return alert('Escribe un tema');
-    const loading = document.getElementById('aiLoading'); const container = document.getElementById('aiQuizContainer'); const btn = document.getElementById('aiGenerateBtn');
-    loading.style.display = 'block'; container.innerHTML = ''; btn.disabled = true;
+    const topic = document.getElementById('aiTopic').value.trim(); 
+    if (!topic) return alert('Escribe un tema');
+    const loading = document.getElementById('aiLoading'); 
+    const container = document.getElementById('aiQuizContainer'); 
+    const btn = document.getElementById('aiGenerateBtn');
+    loading.style.display = 'block'; 
+    container.innerHTML = ''; 
+    btn.disabled = true;
+
     try {
-      const res = await fetch('/api/quiz', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: topic }) });
-      const data = await res.json(); if (data.error) throw new Error(data.error);
+      const res = await fetch('/api/quiz', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ topic: topic }) 
+      });
+      const data = await res.json(); 
+      if (data.error) throw new Error(data.error);
       renderQuiz(data.questions, container);
-    } catch (err) { container.innerHTML = '<p style="color:#b71c1c;padding:12px;">Error: ' + err.message + '</p>'; }
-    finally { loading.style.display = 'none'; btn.disabled = false; }
+    } catch (err) { 
+      container.innerHTML = '<p style="color:#b71c1c;padding:12px;">Error: ' + err.message + '</p>'; 
+    } finally { 
+      loading.style.display = 'none'; 
+      btn.disabled = false; 
+    }
   };
 
   document.getElementById('chatBtn').onclick = async function(){
-    const msg = document.getElementById('chatInput').value.trim(); if (!msg) return;
-    const replyBox = document.getElementById('chatReply'); const btn = document.getElementById('chatBtn');
-    replyBox.style.display = 'block'; replyBox.textContent = '⏳ Pensando...'; btn.disabled = true;
+    const msg = document.getElementById('chatInput').value.trim(); 
+    if (!msg) return;
+    const replyBox = document.getElementById('chatReply'); 
+    const btn = document.getElementById('chatBtn');
+    replyBox.style.display = 'block'; 
+    replyBox.textContent = '⏳ Pensando...'; 
+    btn.disabled = true;
+
     try {
-      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }) });
-      const data = await res.json(); if (data.error) throw new Error(data.error);
+      const res = await fetch('/api/chat', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ message: msg }) 
+      });
+      const data = await res.json(); 
+      if (data.error) throw new Error(data.error);
       replyBox.textContent = data.reply;
-    } catch (err) { replyBox.textContent = 'Error: ' + err.message; }
-    finally { btn.disabled = false; }
+    } catch (err) { 
+      replyBox.textContent = 'Error: ' + err.message; 
+    } finally { 
+      btn.disabled = false; 
+    }
   };
 
+  // Iniciar app
   selectTopic('present_simple');
 </script>
 </body>
