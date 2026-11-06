@@ -31,18 +31,32 @@ app.post('/api/quiz', async (req, res) => {
 });
 
 app.post('/api/chat', async (req, res) => {
+  const { message, context } = req.body;
+  
   try {
+    // Si el alumno acaba de hacer un quiz, preparamos el texto con sus errores
+    let contextText = "";
+    if (context && context.length > 0) {
+      contextText = "El alumno acaba de hacer un quiz. Aquí están los detalles de sus respuestas:\n" + 
+                    JSON.stringify(context, null, 2) + 
+                    "\n\nUsa esta información si el alumno te pregunta sobre sus errores o el quiz.";
+    }
+
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + GROQ_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'openai/gpt-oss-120b',
         messages: [
-          { role: 'system', content: 'Eres un examinador bilingüe. Responde en ESPAÑOL y luego en INGLÉS.' },
-          { role: 'user', content: req.body.message }
+          { 
+            role: 'system', 
+            content: 'Eres un examinador bilingüe. Responde en ESPAÑOL y luego en INGLÉS. Sé claro y motivador.\n\n' + contextText 
+          },
+          { role: 'user', content: message }
         ]
       })
     });
+    
     const data = await r.json();
     res.json({ reply: data.choices[0].message.content });
   } catch (err) { res.status(500).json({ error: err.message }); }
