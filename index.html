@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudyCast · Repaso para Examen</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f4e79">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 <style>
   :root {
@@ -187,7 +189,6 @@
     topicGrid.appendChild(btn);
   });
 
-  // Algoritmo Fisher-Yates (Garantiza aleatoriedad total y 0 repeticiones)
   function shuffleArray(array) {
     let currentIndex = array.length, randomIndex;
     while (currentIndex !== 0) {
@@ -206,24 +207,19 @@
     document.getElementById('podcastTitle').textContent = '🎧 ' + t.name;
     renderScript(t.podcast);
     
-    // --- MEZCLAR PREGUNTAS Y RESPUESTAS ---
     const shuffledQuestions = [...t.questions].map(q => {
       return { ...q, opts: shuffleArray([...q.opts]) }; 
     });
     shuffleArray(shuffledQuestions); 
     renderQuiz(shuffledQuestions, document.getElementById('quizContainer'));
     
-    // --- MEZCLAR FLASHCARDS ---
     currentFlashcards = shuffleArray([...t.flashcards]);
     currentFcIndex = 0; 
     updateFlashcard(); 
     document.getElementById('flashcard').classList.remove('flipped');
   }
 
-  // Botón para volver a mezclar el quiz sin recargar
-  document.getElementById('reshuffleBtn').onclick = function() {
-    selectTopic(currentTopicKey);
-  };
+  document.getElementById('reshuffleBtn').onclick = function() { selectTopic(currentTopicKey); };
 
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.addEventListener('click', function(){
@@ -305,42 +301,28 @@
 
   function updateFlashcard() {
     if (!currentFlashcards || currentFlashcards.length === 0) return;
-    
-    // Si llega al final, muestra mensaje de repaso
     if (currentFcIndex >= currentFlashcards.length) {
       document.getElementById('fcFront').textContent = "¡Has repasado todas! 🎉";
       document.getElementById('fcBack').textContent = "Pulsa Siguiente para mezclar de nuevo";
       document.getElementById('fcCounter').textContent = "Fin";
       return;
     }
-
     const card = currentFlashcards[currentFcIndex];
     document.getElementById('fcFront').textContent = card.front; 
     document.getElementById('fcBack').textContent = card.back;
     document.getElementById('fcCounter').textContent = (currentFcIndex + 1) + ' / ' + currentFlashcards.length;
     document.getElementById('flashcard').classList.remove('flipped');
   }
-
-  document.getElementById('flashcardBox').onclick = () => { 
-    if(currentFcIndex < currentFlashcards.length) {
-      document.getElementById('flashcard').classList.toggle('flipped'); 
-    }
-  };
-
+  document.getElementById('flashcardBox').onclick = () => { if(currentFcIndex < currentFlashcards.length) document.getElementById('flashcard').classList.toggle('flipped'); };
   document.getElementById('nextFc').onclick = () => { 
     currentFcIndex++;
     if (currentFcIndex > currentFlashcards.length) {
-      // Volver a mezclar si ya terminó
       currentFlashcards = shuffleArray([...currentFlashcards]);
       currentFcIndex = 0;
     }
     updateFlashcard(); 
   };
-
-  document.getElementById('prevFc').onclick = () => { 
-    if(currentFcIndex > 0) currentFcIndex--;
-    updateFlashcard(); 
-  };
+  document.getElementById('prevFc').onclick = () => { if(currentFcIndex > 0) currentFcIndex--; updateFlashcard(); };
 
   document.getElementById('aiGenerateBtn').onclick = async function(){
     const topic = document.getElementById('aiTopic').value.trim(); if (!topic) return alert('Escribe un tema');
@@ -366,8 +348,16 @@
     finally { btn.disabled = false; }
   };
 
-  // INICIAR APP: Al recargar la página, ejecuta esto y mezcla todo automáticamente.
   selectTopic('present_simple');
+
+  // REGISTRO DEL SERVICE WORKER (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker registrado ✅'))
+        .catch(err => console.log('Error al registrar SW ❌', err));
+    });
+  }
 </script>
 </body>
 </html>
